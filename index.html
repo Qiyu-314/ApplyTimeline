@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ApplyTimeline</title>
+  <style>
+    :root {
+      --bg-1: #fff4ea;
+      --bg-2: #eafaf3;
+      --ink: #142033;
+      --muted: #66768a;
+      --card: #ffffff;
+      --done: #12a060;
+      --doing: #ff7a1a;
+      --todo: #ffc089;
+      --today: #e11d70;
+      --accent: #2563eb;
+      --hku: #163d2e;
+      --dark: #141c28;
+      --dark-2: #1c2736;
+      --shadow: 0 16px 40px rgba(20, 32, 51, 0.1);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 8% -8%, #ffd48a 0%, transparent 52%),
+        radial-gradient(760px 400px at 100% 0%, #9af0c8 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      min-height: 100vh;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px 18px 56px;
+    }
+
+    header.hero {
+      background: linear-gradient(135deg, #143528 0%, #1f5a42 48%, #2563eb 140%);
+      color: #fff;
+      border-radius: 28px;
+      padding: 28px 28px 24px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      animation: rise 0.55s var(--ease) both;
+    }
+    header.hero::after {
+      content: "";
+      position: absolute;
+      right: -50px;
+      top: -60px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .eyebrow {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+    h1 {
+      margin: 12px 0 8px;
+      font-size: clamp(26px, 4vw, 40px);
+      line-height: 1.15;
+    }
+    .lede {
+      margin: 0;
+      max-width: 46em;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 16px;
+    }
+    .today-banner {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+    .today-banner strong { font-size: 18px; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #fff;
+      color: var(--today);
+    }
+
+    .timeline-card {
+      margin-top: 22px;
+      background: var(--card);
+      border-radius: 28px;
+      padding: 22px 18px 18px;
+      box-shadow: var(--shadow);
+      overflow: visible;
+      animation: rise 0.65s var(--ease) 0.06s both;
+    }
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 0 8px 4px;
+    }
+    .section-title h2 { margin: 0; font-size: 20px; }
+    .sim-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff4ec;
+      border: 1px solid #ffd2a8;
+      border-radius: 999px;
+      padding: 6px 10px 6px 14px;
+    }
+    .sim-bar label {
+      font-size: 13px;
+      font-weight: 800;
+      color: #c45a00;
+      white-space: nowrap;
+    }
+    .sim-bar select {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      border: 0;
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    /* 桌面：横轴。上方留给 📍 今天 标签 + 竖线 */
+    .track-wrap {
+      position: relative;
+      padding: 88px 4px 8px;
+    }
+    .rail {
+      position: relative;
+      min-height: 48px;
+    }
+    .axis {
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      top: 21px;
+      height: 6px;
+      border-radius: 99px;
+      background: #efe8dc;
+      overflow: hidden;
+      transform: scaleX(0);
+      transform-origin: left center;
+      animation: growX 0.85s var(--ease) forwards;
+      z-index: 1;
+    }
+    .axis-fill {
+      height: 100%;
+      width: var(--progress, 0%);
+      border-radius: inherit;
+      background: linear-gradient(90deg, #12a060 0%, #7ed9a8 40%, #ffb347 78%, #ff7a1a 100%);
+      transition: width 0.55s var(--ease), height 0.55s var(--ease);
+    }
+
+    /* 玫红标签 + 竖线，原点落在横轴上；left/top 变化时平滑滑过去 */
+    .today-pin {
+      position: absolute;
+      z-index: 5;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+      opacity: 0;
+    }
+    .today-pin.show { opacity: 1; }
+    .today-pin.ready {
+      transition: left 0.55s var(--ease), top 0.55s var(--ease), opacity 0.25s ease;
+    }
+    .today-stem {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 2px;
+      height: 46px;
+      background: var(--today);
+      border-radius: 2px;
+      transform: translateX(-50%);
+      box-shadow: 0 0 0 3px rgba(225, 29, 112, 0.12);
+    }
+    .today-label {
+      position: absolute;
+      left: 0;
+      bottom: 46px;
+      transform: translateX(-50%);
+      background: var(--today);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      padding: 5px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+      box-shadow: 0 8px 18px rgba(225, 29, 112, 0.32);
+    }
+
+    .nodes {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      min-width: 760px;
+    }
+    .node {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      font: inherit;
+      color: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* 48px 热区包住圆点，避免手机点偏 */
+    .orb-hit {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 3;
+    }
+    .orb {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0);
+      transition: transform 0.25s var(--ease), box-shadow 0.25s ease, background 0.3s ease;
+      animation: orbPop 0.48s var(--ease) forwards;
+      animation-delay: calc(0.26s + var(--i, 0) * 0.1s);
+    }
+    .node.done .orb { background: var(--done); }
+    .node.done .orb::after {
+      content: "✓";
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1;
+    }
+    .node.doing .orb { background: var(--doing); }
+    .node.doing .orb::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: breathe 1.7s ease-out infinite;
+    }
+    .node.todo .orb { background: var(--todo); }
+    .node.open .orb {
+      box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.28), 0 3px 10px rgba(0, 0, 0, 0.12);
+    }
+    .node:hover .orb { transform: scale(1.08); }
+    .nodes.no-intro .orb {
+      opacity: 1;
+      transform: scale(1);
+      animation: none;
+    }
+    .nodes.no-intro .node:hover .orb { transform: scale(1.08); }
+
+    .caption {
+      margin-top: 8px;
+      text-align: center;
+      width: 100%;
+      max-width: 150px;
+      padding: 0 4px 8px;
+      transition: color 0.25s ease;
+    }
+    .caption strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.35;
+      margin-bottom: 4px;
+    }
+    .caption time {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .node.open .caption strong { color: var(--accent); }
+    .today-slot {
+      flex: 0.85;
+      min-width: 56px;
+      min-height: 48px;
+      pointer-events: none;
+    }
+    .empty-month {
+      margin: 10px 12px 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* 深色详情卡；[hidden] 必须自己写，否则动画/display 会把原生 hidden 顶掉 */
+    .detail {
+      margin: 10px 8px 6px;
+      border-radius: 22px;
+      background: linear-gradient(165deg, var(--dark-2) 0%, var(--dark) 100%);
+      color: #eef4f8;
+      padding: 20px 22px 12px;
+      box-shadow: 0 18px 40px rgba(20, 32, 51, 0.22);
+      animation: rise 0.35s var(--ease) both;
+    }
+    .detail[hidden] { display: none; }
+    .detail-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .detail-head h3 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.01em;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .badge.done { background: var(--done); color: #fff; }
+    .badge.doing { background: var(--doing); color: #fff; }
+    .badge.todo { background: var(--todo); color: #7a3b00; }
+    .detail .summary {
+      margin: 0 0 12px;
+      color: #b7c4d0;
+      line-height: 1.55;
+    }
+    .progress-note {
+      font-size: 12px;
+      color: #8b9aab;
+      margin: 0 0 6px;
+    }
+    .todos { list-style: none; padding: 0; margin: 0; }
+    .todos li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 11px 2px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      transition: background 0.2s ease;
+    }
+    .chev {
+      color: #ff8fab;
+      font-weight: 800;
+      font-size: 18px;
+      line-height: 1.2;
+      width: 14px;
+      flex-shrink: 0;
+    }
+    .todos label {
+      cursor: pointer;
+      line-height: 1.5;
+      color: #e8eef4;
+    }
+    .todos input {
+      width: 18px;
+      height: 18px;
+      margin-top: 3px;
+      flex-shrink: 0;
+      accent-color: #7ed9a8;
+    }
+    .todos li.checked label {
+      text-decoration: line-through;
+      color: #8b9aab;
+    }
+
+    footer.sources {
+      margin-top: 18px;
+      padding: 16px 18px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    footer.sources a { color: var(--hku); font-weight: 700; word-break: break-all; }
+    footer.sources ol { padding-left: 18px; margin: 8px 0 0; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes breathe {
+      0% { box-shadow: 0 0 0 0 rgba(255, 122, 26, 0.55); }
+      100% { box-shadow: 0 0 0 16px rgba(255, 122, 26, 0); }
+    }
+    @keyframes growX {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+    @keyframes growY {
+      from { transform: scaleY(0); }
+      to { transform: scaleY(1); }
+    }
+    @keyframes orbPop {
+      0% { opacity: 0; transform: scale(0); }
+      75% { opacity: 1; transform: scale(1.18); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* 手机：竖轴。圆点在左、文字在右，热区够大，标记不挡点击 */
+    @media (max-width: 768px) {
+      .section-title { flex-direction: column; align-items: flex-start; }
+      .track-wrap { padding: 12px 0 8px 0; overflow: visible; }
+      .rail { min-height: 0; }
+      .axis {
+        left: 23px;
+        right: auto;
+        top: 24px;
+        bottom: 24px;
+        width: 6px;
+        height: auto;
+        transform: scaleY(0);
+        transform-origin: top center;
+        animation: growY 0.85s var(--ease) forwards;
+      }
+      .axis-fill {
+        width: 100%;
+        height: var(--progress, 0%);
+        background: linear-gradient(180deg, #12a060 0%, #7ed9a8 40%, #ffb347 78%, #ff7a1a 100%);
+      }
+      .nodes {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        gap: 0;
+      }
+      .node {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        align-items: center;
+        width: 100%;
+        min-height: 72px;
+        text-align: left;
+      }
+      .caption {
+        margin: 0;
+        text-align: left;
+        max-width: none;
+        padding: 10px 8px 10px 6px;
+      }
+      .today-slot {
+        flex: none;
+        width: 48px;
+        min-width: 0;
+        min-height: 36px;
+      }
+      .empty-month { margin-left: 56px; }
+      .today-stem {
+        width: 36px;
+        height: 2px;
+        left: 0;
+        top: 0;
+        bottom: auto;
+        transform: none;
+      }
+      .today-label {
+        left: 40px;
+        bottom: auto;
+        top: 0;
+        transform: translateY(-50%);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+      .axis { transform: none !important; }
+      .orb { opacity: 1 !important; transform: none !important; }
+      .today-pin { opacity: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <span class="eyebrow">升学雷达 · 申请时间线规划器</span>
+      <h1>ApplyTimeline</h1>
+      <p class="lede">
+        这条时间线按香港大学招生办官网的国际学历 / Non-JUPAS 申请节点排好。
+        状态不会写死，会拿「今天」和每个日期自动比较。
+      </p>
+      <div class="today-banner" id="todayBanner"></div>
+    </header>
+
+    <section class="timeline-card">
+      <div class="section-title">
+        <h2>申请季时间轴</h2>
+        <div class="sim-bar">
+          <label for="simMonth">查看月份</label>
+          <select id="simMonth"></select>
+        </div>
+      </div>
+      <div class="track-wrap" id="trackWrap">
+        <div class="today-pin" id="todayPin">
+          <i class="today-stem" aria-hidden="true"></i>
+          <span class="today-label">📍 今天</span>
+        </div>
+        <div class="rail">
+          <div class="axis" aria-hidden="true"><div class="axis-fill" id="axisFill"></div></div>
+          <div class="nodes" id="nodes"></div>
+        </div>
+      </div>
+      <div class="detail" id="detail" hidden></div>
+    </section>
+
+    <footer class="sources">
+      <strong>数据来源（请你对照官网核对）</strong>
+      <p>本页节点来自港大招生办「International Qualifications」页面的 Important Dates，以及页顶对 2027 入学开放日的公告。待办是根据同一页面说明改写成学生能执行的句子，不是额外发明的截止日期。</p>
+      <ol>
+        <li>招生办国际学历申请页（含 2027 入学开放日 + Important Dates）：<br /><a href="https://admissions.hku.hk/apply/international-qualifications" target="_blank" rel="noopener">https://admissions.hku.hk/apply/international-qualifications</a></li>
+        <li>同一页简体中文版：<br /><a href="https://admissions.hku.hk/zh-hans/apply/international-qualifications" target="_blank" rel="noopener">https://admissions.hku.hk/zh-hans/apply/international-qualifications</a></li>
+        <li>2026 入学 IAS/NJ 总说明 PDF（首轮 11 月 26 日、最终截止 8 月 21 日、9 月初仍无消息可视为未录取）：<br /><a href="https://admissions.hku.hk/sites/default/files/2025-09/General%20Information%20NJ%202026.pdf" target="_blank" rel="noopener">https://admissions.hku.hk/sites/default/files/2025-09/General%20Information%20NJ%202026.pdf</a></li>
+      </ol>
+      <p>说明：官网 Important Dates 里「首轮截止」和「开始滚动评审」都在 2025-11-26，时间轴上合成一个节点，滚动说明写进待办。内地高考申请是另一套日历，见 <a href="https://admissions.hku.hk/zh-hans/apply/mainland" target="_blank" rel="noopener">内地本科生入学计划</a>。</p>
+    </footer>
+  </div>
+
+  <script>
+    // ========== 里程碑数据：只改这里，界面会跟着变 ==========
+    const milestones = [
+      {
+        id: "open-2026",
+        name: "开始网上申请",
+        date: "2025-09-24",
+        summary: "官网 Important Dates 第一条：Start your application。国际学历 / Non-JUPAS 申请系统在这一天开放。",
+        todos: [
+          "打开港大招生办国际学历申请页，确认自己走的是 International / Non-JUPAS，不是内地高考通道",
+          "准备最多 3 个本科专业志愿（提交后不能再改志愿）",
+          "准备申请费港币 600 元（缴交后才算申请成功，不可退还）",
+          "注册网上申请账号，先把个人信息和在读课程填上"
+        ]
+      },
+      {
+        id: "first-round",
+        name: "首轮评审截止",
+        date: "2025-11-26",
+        summary: "这一天中午 12:00（香港时间）前提交的申请，会进入第一轮评审；之后提交改为滚动评审，面试个例安排。",
+        todos: [
+          "在 11 月 26 日中午 12:00（香港时间）前点提交，赶上首轮",
+          "在系统里填入预估成绩或实际成绩，不要只上传扫描件",
+          "核对 3 个专业选择，因为提交后不能再改",
+          "如果赶不上首轮：仍可继续申请，但会按滚动评审，名额可能先被录满"
+        ]
+      },
+      {
+        id: "documents",
+        name: "补齐成绩与推荐材料",
+        date: "2025-12-03",
+        summary: "想进首轮评审的同学，预估/实际成绩、推荐信和证明文件建议在这一天前交齐。顾问入口之后仍可上传。",
+        todos: [
+          "提醒升学顾问在 Counsellors’ Portal 填写预估或实际成绩",
+          "提交推荐信和其他证明文件",
+          "若顾问来不及，收到系统邀请后一周内补交",
+          "自己再登录申请账号，确认成绩不是“只上传了文件、系统里却是空的”"
+        ]
+      },
+      {
+        id: "first-results",
+        name: "首轮结果开始公布",
+        date: "2025-12-08",
+        summary: "从这一天起陆续发放首轮录取。获录取后一般要在 3–4 周内接受，并缴付不可退还按金。",
+        todos: [
+          "每天查看注册邮箱和申请账号，不要只等短信",
+          "若收到 offer：在信上写的期限内接受，并缴付按金（本地生约 HK$5,000，非本地生约 HK$20,000，以录取信为准）",
+          "非本地生尽早办签证：港大建议评估约 4–6 周，签证约 8–10 周",
+          "若到 2026 年 3 月 31 日仍没有 offer，可视为进入下一轮候补，仍可补交新成绩"
+        ]
+      },
+      {
+        id: "close-2026",
+        name: "申请最终截止",
+        date: "2026-08-21",
+        summary: "2026 入学申请在这一天中午 12:00（香港时间）关闭。PDF 总说明还写：若到 2026 年 9 月初仍无消息，可视为未录取。",
+        todos: [
+          "确认申请已经成功提交，不要拖到中午 12:00 系统维护或卡顿",
+          "把最新成绩、奖项补进系统，滚动评审会继续看",
+          "查收是否还有面试或补件通知",
+          "若到 9 月初仍完全没有消息，按官网总说明可把 2026 入学视为未录取，把精力转到下一学年"
+        ]
+      },
+      {
+        id: "open-2027",
+        name: "2027 入学申请开放",
+        date: "2026-09-23",
+        summary: "招生办页顶公告：International/Non-JUPAS applications for the 2027 intake will be open on September 23, 2026。2027 其余 Important Dates 尚未公布，以官网更新为准。",
+        todos: [
+          "把招生办国际学历页加入收藏，开学后反复核对是否更新了 2027 Important Dates",
+          "提前准备个人陈述、成绩单、推荐人和活动列表，开放当天就能填",
+          "9 月 23 一开放就注册账号，先占住申请节奏",
+          "不要把去年的 11 月 26 日、8 月 21 日直接当成 2027 的截止日，等官网写出新日期再改这条时间线"
+        ]
+      }
+    ];
+
+    const STORAGE_KEY = "hku-timeline-todos-v1";
+    const statusText = { done: "已完成", doing: "进行中", todo: "还没到" };
+
+    function startOfDay(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+    function parseDate(iso) {
+      const [y, m, d] = iso.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+    function formatDate(iso) {
+      const [y, m, d] = iso.split("-");
+      return y + "年" + Number(m) + "月" + Number(d) + "日";
+    }
+    function todayIso(today) {
+      return today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+    }
+
+    // 按日期排好；第一个未过期 = 进行中
+    function attachStatus(list, today) {
+      const sorted = list.slice().sort(function (a, b) {
+        return parseDate(a.date) - parseDate(b.date);
+      });
+      let currentId = null;
+      for (let i = 0; i < sorted.length; i++) {
+        if (parseDate(sorted[i].date) >= today) {
+          currentId = sorted[i].id;
+          break;
+        }
+      }
+      const currentDate = currentId
+        ? parseDate(sorted.find(function (m) { return m.id === currentId; }).date)
+        : null;
+      return sorted.map(function (item) {
+        const d = parseDate(item.date);
+        let status = "done";
+        if (currentId && item.id === currentId) status = "doing";
+        else if (currentDate && d > currentDate) status = "todo";
+        return Object.assign({}, item, { status: status });
+      });
+    }
+
+    // 今天落在两个节点之间时，按日期比例插值
+    function todayAxisPercent(list, today) {
+      const n = list.length;
+      if (n < 2) return 0;
+      const times = list.map(function (m) { return parseDate(m.date).getTime(); });
+      const t = today.getTime();
+      if (t <= times[0]) return 0;
+      if (t >= times[n - 1]) return 100;
+      let i = 0;
+      while (i < n - 1 && t > times[i + 1]) i++;
+      const span = times[i + 1] - times[i];
+      const local = span === 0 ? 0 : (t - times[i]) / span;
+      return ((i + local) / (n - 1)) * 100;
+    }
+
+    function loadChecks() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+      catch (e) { return {}; }
+    }
+    function saveChecks(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    let selectedMonth = "";
+    let dated = [];
+    let openId = milestones[0].id;
+    let introPlayed = false;
+    let pinReady = false;
+
+    function getToday() {
+      return startOfDay(new Date());
+    }
+    function monthKey(iso) {
+      return iso.slice(0, 7);
+    }
+    function formatMonth(ym) {
+      const parts = ym.split("-");
+      return parts[0] + "年" + Number(parts[1]) + "月";
+    }
+    // 数据里出现过的月份，当作申请月（如 8、9、11、12）
+    function applicationMonthNumbers() {
+      const set = {};
+      milestones.forEach(function (m) {
+        set[Number(m.date.slice(5, 7))] = true;
+      });
+      return Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
+    }
+    // 本月全部已过 → 标记在最后节点之后；本月全是未来 → 标记在第一节点之前；有过有未过 → 插在中间
+    function todaySlotWhere(nodes, today) {
+      if (!nodes.length) {
+        const parts = selectedMonth.split("-").map(Number);
+        const selectedStart = new Date(parts[0], parts[1] - 1, 1);
+        const currentStart = new Date(today.getFullYear(), today.getMonth(), 1);
+        return selectedStart > currentStart ? "before" : "after";
+      }
+      const pastCount = nodes.filter(function (n) { return parseDate(n.date) < today; }).length;
+      if (pastCount === nodes.length) return "after";
+      if (pastCount === 0) return "before";
+      return "between:" + (pastCount - 1);
+    }
+    function applyDateState(keepSelection) {
+      const today = getToday();
+      const allDated = attachStatus(milestones, today);
+      dated = allDated.filter(function (m) { return monthKey(m.date) === selectedMonth; });
+      if (!dated.length) {
+        openId = "";
+        return;
+      }
+      if (!keepSelection || !dated.some(function (m) { return m.id === openId; })) {
+        const current = dated.find(function (m) { return m.status === "doing"; });
+        openId = (current || dated[0]).id;
+      }
+    }
+
+    function fillSimSelect() {
+      const select = document.getElementById("simMonth");
+      const year0 = new Date().getFullYear();
+      const months = applicationMonthNumbers();
+      let html = "";
+      for (let y = year0; y <= year0 + 2; y++) {
+        months.forEach(function (mo) {
+          const value = y + "-" + String(mo).padStart(2, "0");
+          html += "<option value=\"" + value + "\">" + y + "年" + mo + "月</option>";
+        });
+      }
+      select.innerHTML = html;
+      const nowKey = year0 + "-" + String(new Date().getMonth() + 1).padStart(2, "0");
+      const values = Array.prototype.map.call(select.options, function (o) { return o.value; });
+      if (values.indexOf(nowKey) !== -1) select.value = nowKey;
+      else {
+        const next = values.filter(function (v) { return v >= nowKey; })[0];
+        select.value = next || values[0];
+      }
+      selectedMonth = select.value;
+    }
+
+    function renderBanner() {
+      const today = getToday();
+      const el = document.getElementById("todayBanner");
+      const todayLabel = formatDate(todayIso(today));
+      const where = todaySlotWhere(dated, today);
+      let hint = "「今天」标在本月最后一个节点之后";
+      if (String(where).indexOf("before") === 0) hint = "「今天」标在本月第一个节点之前";
+      else if (String(where).indexOf("between") === 0) hint = "「今天」标在已过节点和未到节点之间";
+      if (!dated.length) {
+        el.innerHTML = "<span class=\"chip\">今天 " + todayLabel + "</span><strong>正在看 " + formatMonth(selectedMonth) + "</strong><span>这个月还没有申请节点</span>";
+        return;
+      }
+      el.innerHTML = "<span class=\"chip\">今天 " + todayLabel + "</span><strong>正在看 " + formatMonth(selectedMonth) + " · " + dated.length + " 个节点</strong><span>" + hint + "</span>";
+    }
+
+    function paintProgress() {
+      const axis = document.querySelector(".axis");
+      const pin = document.getElementById("todayPin");
+      const wrap = document.getElementById("trackWrap");
+      if (!axis || !pin || !wrap) return;
+      const axisRect = axis.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      const pinX = parseFloat(pin.style.left) || 0;
+      const pinY = parseFloat(pin.style.top) || 0;
+      const mobile = window.matchMedia("(max-width: 768px)").matches;
+      let percent = 0;
+      if (mobile) {
+        const span = axisRect.height || 1;
+        percent = ((wrapRect.top + pinY) - axisRect.top) / span * 100;
+      } else {
+        const span = axisRect.width || 1;
+        percent = ((wrapRect.left + pinX) - axisRect.left) / span * 100;
+      }
+      axis.style.setProperty("--progress", Math.max(0, Math.min(100, percent)) + "%");
+    }
+
+    // 「今天」对准占位槽中心；y 在桌面对准横线
+    function placeTodayPin() {
+      const pin = document.getElementById("todayPin");
+      const wrap = document.getElementById("trackWrap");
+      const axis = document.querySelector(".axis");
+      const slot = document.getElementById("todaySlot");
+      if (!axis || !slot) return;
+      const wrapRect = wrap.getBoundingClientRect();
+      const axisRect = axis.getBoundingClientRect();
+      const slotRect = slot.getBoundingClientRect();
+      const x = slotRect.left + slotRect.width / 2 - wrapRect.left;
+      const yMobile = slotRect.top + slotRect.height / 2 - wrapRect.top;
+      const yDesktop = axisRect.top + axisRect.height / 2 - wrapRect.top;
+      const mobile = window.matchMedia("(max-width: 768px)").matches;
+      pin.style.left = x + "px";
+      pin.style.top = (mobile ? yMobile : yDesktop) + "px";
+      pin.classList.add("show");
+      paintProgress();
+      if (!pinReady) {
+        requestAnimationFrame(function () {
+          pin.classList.add("ready");
+          pinReady = true;
+        });
+      }
+    }
+
+    function nodeClass(m) {
+      return "node " + m.status + (m.id === openId ? " open" : "");
+    }
+
+    function renderNodes() {
+      const wrap = document.getElementById("nodes");
+      const slot = "<span class=\"today-slot\" id=\"todaySlot\"></span>";
+      const where = todaySlotWhere(dated, getToday());
+      const buttons = dated.map(function (m, index) {
+        return (
+          "<button class=\"" + nodeClass(m) + "\" type=\"button\" data-id=\"" + m.id + "\" style=\"--i:" + index + "\" aria-expanded=\"" + (m.id === openId) + "\">" +
+            "<span class=\"orb-hit\"><span class=\"orb\"></span></span>" +
+            "<span class=\"caption\"><strong>" + m.name + "</strong><time datetime=\"" + m.date + "\">" + formatDate(m.date) + "</time></span>" +
+          "</button>"
+        );
+      });
+      let html = "";
+      if (!dated.length) {
+        html = "<p class=\"empty-month\">这个月还没有申请节点</p>" + slot;
+      } else if (where === "before") {
+        html = slot + buttons.join("");
+      } else if (where === "after") {
+        html = buttons.join("") + slot;
+      } else {
+        const splitAt = Number(String(where).split(":")[1]);
+        html = buttons.slice(0, splitAt + 1).join("") + slot + buttons.slice(splitAt + 1).join("");
+      }
+      wrap.innerHTML = html;
+      if (introPlayed) wrap.classList.add("no-intro");
+      else introPlayed = true;
+    }
+
+    // 点节点时只改 class，不拆掉 DOM，避免手机点击错位
+    function syncNodeClasses() {
+      const buttons = document.querySelectorAll(".node");
+      dated.forEach(function (m, index) {
+        const el = buttons[index];
+        if (!el) return;
+        el.className = nodeClass(m);
+        el.setAttribute("aria-expanded", m.id === openId);
+      });
+    }
+
+    function renderDetail() {
+      const box = document.getElementById("detail");
+      const item = dated.find(function (m) { return m.id === openId; });
+      if (!item) { box.hidden = true; box.innerHTML = ""; return; }
+      const saved = loadChecks()[item.id] || {};
+      const checks = item.todos.map(function (text, index) {
+        const checked = !!saved[index];
+        return (
+          "<li class=\"" + (checked ? "checked" : "") + "\">" +
+            "<span class=\"chev\" aria-hidden=\"true\">›</span>" +
+            "<input type=\"checkbox\" id=\"todo-" + item.id + "-" + index + "\" data-mid=\"" + item.id + "\" data-idx=\"" + index + "\"" + (checked ? " checked" : "") + " />" +
+            "<label for=\"todo-" + item.id + "-" + index + "\">" + text + "</label>" +
+          "</li>"
+        );
+      }).join("");
+      const doneCount = item.todos.filter(function (_, i) { return saved[i]; }).length;
+      box.hidden = false;
+      box.innerHTML =
+        "<div class=\"detail-head\"><h3>" + item.name + "</h3><span class=\"badge " + item.status + "\">" + statusText[item.status] + "</span></div>" +
+        "<p class=\"summary\">" + item.summary + "</p>" +
+        "<p class=\"progress-note\">待办 " + doneCount + " / " + item.todos.length + " · 勾选保存在这台电脑的浏览器里</p>" +
+        "<ul class=\"todos\">" + checks + "</ul>";
+    }
+
+    function renderAll() {
+      renderBanner();
+      renderNodes();
+      renderDetail();
+      placeTodayPin();
+    }
+
+    document.getElementById("nodes").addEventListener("click", function (event) {
+      const btn = event.target.closest(".node");
+      if (!btn) return;
+      openId = btn.getAttribute("data-id");
+      syncNodeClasses();
+      renderDetail();
+    });
+
+    document.getElementById("detail").addEventListener("change", function (event) {
+      const input = event.target;
+      if (input.tagName !== "INPUT") return;
+      const all = loadChecks();
+      const mid = input.getAttribute("data-mid");
+      const idx = input.getAttribute("data-idx");
+      if (!all[mid]) all[mid] = {};
+      all[mid][idx] = input.checked;
+      saveChecks(all);
+      renderDetail();
+    });
+
+    window.addEventListener("resize", placeTodayPin);
+    document.getElementById("simMonth").addEventListener("change", function () {
+      selectedMonth = this.value;
+      applyDateState(false);
+      renderAll();
+    });
+
+    fillSimSelect();
+    applyDateState(false);
+    renderAll();
+  </script>
+</body>
+</html>
