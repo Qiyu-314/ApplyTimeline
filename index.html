@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -1011,72 +1011,73 @@
   </style>
 </head>
 <body>
-  <nav class="topbar" aria-label="网站导航">
+  <nav class="topbar" aria-label="Site navigation" data-i18n-aria="nav_aria">
     <span class="topbar-brand">ApplyTimeline</span>
     <div class="topbar-links">
-      <button type="button" id="navHow">怎么用</button>
-      <a href="#timeline">时间轴</a>
-      <a href="#sources">文字时间线</a>
-      <button type="button" id="navChangeProfile">更改年龄 / 地区</button>
+      <button type="button" id="navHow" data-i18n="nav_how">How to use</button>
+      <a href="#timeline" data-i18n="nav_timeline">Timeline</a>
+      <a href="#sources" data-i18n="nav_sources">Text timeline</a>
+      <button type="button" id="navChangeProfile" data-i18n="nav_profile">Change age / region</button>
+      <button type="button" id="navLang" aria-label="Switch language">中文</button>
     </div>
   </nav>
 
   <div class="help-modal" id="helpModal" hidden>
     <div class="help-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-      <h2 id="helpTitle">怎么用 ApplyTimeline</h2>
+      <h2 id="helpTitle" data-i18n="help_title">How to use ApplyTimeline</h2>
       <p id="helpSetup"></p>
       <p id="helpSubtitle"></p>
       <p id="helpSwipe"></p>
       <div class="help-actions">
-        <button type="button" class="help-ack" id="helpAck">已知晓</button>
+        <button type="button" class="help-ack" id="helpAck" data-i18n="help_ack">Got it</button>
       </div>
     </div>
   </div>
 
-  <button type="button" class="back-top" id="backTop" aria-label="回到顶部">↑</button>
+  <button type="button" class="back-top" id="backTop" aria-label="Back to top" data-i18n-aria="back_top">↑</button>
 
   <div class="setup" id="setup" hidden>
     <div class="setup-card">
-      <span class="eyebrow" style="background:#eafaf3;color:#143528;border-color:#cde8d9;">升学雷达 · 申请时间线规划器</span>
-      <h2>先告诉我你的情况</h2>
-      <p class="setup-lead">填写周岁和想申请的地区。时间线会按你的年龄换算申请季，英美截止时刻会先换成北京时间再标到轴上。</p>
-      <label class="field-label" for="ageInput">你的年龄（周岁）</label>
-      <input id="ageInput" type="number" inputmode="numeric" min="12" max="22" step="1" placeholder="例如 16" />
-      <span class="field-label">想申请的地区</span>
+      <span class="eyebrow" style="background:#eafaf3;color:#143528;border-color:#cde8d9;" data-i18n="setup_eyebrow">Admissions radar · application timeline</span>
+      <h2 data-i18n="setup_title">Tell me about you first</h2>
+      <p class="setup-lead" data-i18n="setup_lead">Enter your age and target region. The timeline will map your admissions cycle, and US/UK deadlines are converted to Beijing time before they appear on the axis.</p>
+      <label class="field-label" for="ageInput" data-i18n="setup_age">Your age</label>
+      <input id="ageInput" type="number" inputmode="numeric" min="12" max="22" step="1" placeholder="e.g. 16" data-i18n-placeholder="setup_age_ph" />
+      <span class="field-label" data-i18n="setup_region">Regions you want to apply to</span>
       <div class="region-picks" id="regionPicks">
-        <button type="button" data-region="us">美国</button>
-        <button type="button" data-region="hk">香港</button>
-        <button type="button" data-region="uk">英国</button>
-        <button type="button" data-region="all">美国 + 香港 + 英国</button>
+        <button type="button" data-region="us" data-i18n="region_us">United States</button>
+        <button type="button" data-region="hk" data-i18n="region_hk">Hong Kong</button>
+        <button type="button" data-region="uk" data-i18n="region_uk">United Kingdom</button>
+        <button type="button" data-region="all" data-i18n="region_all">US + Hong Kong + UK</button>
       </div>
       <p class="setup-error" id="setupError"></p>
-      <button type="button" class="setup-go" id="setupGo">查看我的时间线</button>
-      <button type="button" class="change-profile" id="setupCancel" hidden style="width:100%;margin-top:10px;padding:12px;">返回时间线</button>
+      <button type="button" class="setup-go" id="setupGo" data-i18n="setup_go">See my timeline</button>
+      <button type="button" class="change-profile" id="setupCancel" hidden style="width:100%;margin-top:10px;padding:12px;" data-i18n="setup_back">Back to timeline</button>
     </div>
   </div>
 
   <div class="page">
     <header class="hero">
       <h1 class="visually-hidden">ApplyTimeline</h1>
-      <p class="visually-hidden" id="subtitle">先选择年龄和申请地区，再查看专属时间线。状态会拿「今天」和每个日期自动比较。</p>
+      <p class="visually-hidden" id="subtitle">Choose your age and region, then view a timeline built for you. Status is compared with today.</p>
       <div class="today-banner" id="todayBanner"></div>
     </header>
 
     <section class="timeline-card" id="timeline">
       <div class="section-title">
-        <h2 id="timelineHeading">申请季时间轴</h2>
+        <h2 id="timelineHeading" data-i18n="timeline_heading">Application timeline</h2>
         <div class="sim-bar">
-          <label for="simMonth">查看月份</label>
+          <label for="simMonth" data-i18n="month_label">Month</label>
           <select id="simMonth"></select>
-          <button type="button" class="jump-today" id="jumpToday">回到今天</button>
+          <button type="button" class="jump-today" id="jumpToday" data-i18n="jump_today">Jump to today</button>
         </div>
       </div>
       <div class="phase-note" id="phaseNote" hidden></div>
-      <p class="swipe-hint">点左右箭头或滑动，切换月份。节点按日期落在月内；同一天的任务合在一个点里。</p>
+      <p class="swipe-hint" data-i18n="swipe_hint">Use the arrows or swipe to change months. Nodes sit on the day they fall; tasks on the same day share one point.</p>
       <div class="track-wrap" id="trackWrap">
-        <button type="button" class="month-nav prev" id="monthPrev" aria-label="上个月">‹</button>
-        <div class="track-scroller" id="trackScroller" tabindex="0" aria-label="按月份滑动的申请时间轴"></div>
-        <button type="button" class="month-nav next" id="monthNext" aria-label="下个月">›</button>
+        <button type="button" class="month-nav prev" id="monthPrev" aria-label="Previous month" data-i18n-aria="month_prev">‹</button>
+        <div class="track-scroller" id="trackScroller" tabindex="0" aria-label="Application timeline by month" data-i18n-aria="track_aria"></div>
+        <button type="button" class="month-nav next" id="monthNext" aria-label="Next month" data-i18n-aria="month_next">›</button>
       </div>
       <div class="detail" id="detail" hidden></div>
     </section>
@@ -1086,26 +1087,171 @@
 
   <script>
     const PROFILE_KEY = "applytimeline-profile-v1";
+    const LANG_KEY = "applytimeline-lang-v1";
+    const I18N = {
+      en: {
+        nav_aria: "Site navigation",
+        nav_how: "How to use",
+        nav_timeline: "Timeline",
+        nav_sources: "Text timeline",
+        nav_profile: "Change age / region",
+        lang_btn: "中文",
+        help_title: "How to use ApplyTimeline",
+        help_ack: "Got it",
+        back_top: "Back to top",
+        setup_eyebrow: "Admissions radar · application timeline",
+        setup_title: "Tell me about you first",
+        setup_lead: "Enter your age and target region. The timeline will map your admissions cycle, and US/UK deadlines are converted to Beijing time before they appear on the axis.",
+        setup_age: "Your age",
+        setup_age_ph: "e.g. 16",
+        setup_region: "Regions you want to apply to",
+        region_us: "United States",
+        region_hk: "Hong Kong",
+        region_uk: "United Kingdom",
+        region_all: "US + Hong Kong + UK",
+        setup_go: "See my timeline",
+        setup_back: "Back to timeline",
+        setup_err_age: "Enter a whole number from 12 to 22.",
+        setup_err_region: "Please choose a region first.",
+        subtitle_base: "Choose your age and region, then view a timeline built for you. Status is compared with today.",
+        timeline_heading: "Application timeline",
+        month_label: "Month",
+        jump_today: "Jump to today",
+        swipe_hint: "Use the arrows or swipe to change months. Nodes sit on the day they fall; tasks on the same day share one point.",
+        month_prev: "Previous month",
+        month_next: "Next month",
+        track_aria: "Application timeline by month",
+        heading_us: "US international undergraduate timeline | {year} Fall",
+        heading_hk: "Hong Kong international undergraduate timeline | {year} Fall",
+        heading_uk: "UK international undergraduate timeline | {year} Entry",
+        heading_all: "US / HK / UK combined timeline | {year} intake",
+        subtitle_axis: "Dates on the axis are Beijing time. Status is compared with today.",
+        subtitle_refreshed: " Dates were refreshed from HKU Admissions, UCAS, and QS 11–20 school sites ({time} UTC).",
+        subtitle_static: " Dates follow recent official pages from HKU Admissions, UCAS, and QS 11–20 schools; they refresh automatically when the backend is connected.",
+        status_done: "Done",
+        status_doing: "Now",
+        status_todo: "Upcoming",
+        role_start: "start",
+        role_end: "end",
+        today: "Today",
+        today_chip: "Today {date}",
+        viewing: "Viewing {month} · {region}",
+        viewing_tasks: "Viewing {month} · {days} dates, {tasks} tasks",
+        hint_past: "This month is over, so Today sits at the far right.",
+        hint_future: "This month has not started, so Today sits at the far left.",
+        hint_today_phase: "Today you are in “{phase}” ({label}). The pink mark sits near day {day} this month.",
+        hint_today: "Today is marked near day {day} on this month’s calendar.",
+        phase_today: "You are here: “{phase}” ({label}).",
+        phase_cover: "No new deadlines this month, but “{phase}” is still underway ({label}).",
+        empty_cover: "No new deadlines this month",
+        empty_month: "No application nodes this month",
+        here: "You are here",
+        predicted: "Estimated",
+        todos_progress: "To-dos {done} / {total} · {save}",
+        save_server: "checks are saved on the site",
+        save_local: "checks are saved in this browser",
+        same_point: "{date} · {count} tasks share this point",
+        beijing_time: "Beijing time",
+        beijing_predicted: "Beijing time, estimated",
+        predicted_paren: "estimated"
+      },
+      zh: {
+        nav_aria: "网站导航",
+        nav_how: "怎么用",
+        nav_timeline: "时间轴",
+        nav_sources: "文字时间线",
+        nav_profile: "更改年龄 / 地区",
+        lang_btn: "EN",
+        help_title: "怎么用 ApplyTimeline",
+        help_ack: "已知晓",
+        back_top: "回到顶部",
+        setup_eyebrow: "升学雷达 · 申请时间线规划器",
+        setup_title: "先告诉我你的情况",
+        setup_lead: "填写周岁和想申请的地区。时间线会按你的年龄换算申请季，英美截止时刻会先换成北京时间再标到轴上。",
+        setup_age: "你的年龄（周岁）",
+        setup_age_ph: "例如 16",
+        setup_region: "想申请的地区",
+        region_us: "美国",
+        region_hk: "香港",
+        region_uk: "英国",
+        region_all: "美国 + 香港 + 英国",
+        setup_go: "查看我的时间线",
+        setup_back: "返回时间线",
+        setup_err_age: "请填写 12 到 22 之间的周岁整数。",
+        setup_err_region: "请先选择想申请的地区。",
+        subtitle_base: "先选择年龄和申请地区，再查看专属时间线。状态会拿「今天」和每个日期自动比较。",
+        timeline_heading: "申请季时间轴",
+        month_label: "查看月份",
+        jump_today: "回到今天",
+        swipe_hint: "点左右箭头或滑动，切换月份。节点按日期落在月内；同一天的任务合在一个点里。",
+        month_prev: "上个月",
+        month_next: "下个月",
+        track_aria: "按月份滑动的申请时间轴",
+        heading_us: "美国国际生本科申请时间线｜{year} Fall",
+        heading_hk: "香港国际生本科申请时间线｜{year} Fall",
+        heading_uk: "英国国际生本科申请时间线｜{year} Entry",
+        heading_all: "美 / 港 / 英 合并申请时间线｜{year} 入学季",
+        subtitle_axis: "轴上日期是北京时间。状态会拿「今天」和每个日期自动比较。",
+        subtitle_refreshed: " 时间节点已对照港大招生办、UCAS 及 QS 11–20 美英港学校官网刷新（{time} UTC）。",
+        subtitle_static: " 时间节点按港大招生办、UCAS 及 QS 11–20 美英港学校近年官网日期整理；连上后端后会自动刷新。",
+        status_done: "已完成",
+        status_doing: "进行中",
+        status_todo: "还没到",
+        role_start: "开始",
+        role_end: "结束",
+        today: "今天",
+        today_chip: "今天 {date}",
+        viewing: "正在看 {month} · {region}",
+        viewing_tasks: "正在看 {month} · {days} 个日期、{tasks} 个任务",
+        hint_past: "这个月已经过完，「今天」标在轴的最右边",
+        hint_future: "这个月还没到，「今天」标在轴的最左边",
+        hint_today_phase: "今天正在「{phase}」阶段（{label}）。玫红标记落在本月 {day} 日附近。",
+        hint_today: "「今天」标在本月日历约 {day} 日的位置",
+        phase_today: "今天在这：你正处于「{phase}」（{label}）。",
+        phase_cover: "本月没有新的截止点，但「{phase}」还在进行（{label}）。",
+        empty_cover: "这个月还没有新的截止点",
+        empty_month: "这个月还没有申请节点",
+        here: "今天在这",
+        predicted: "预测",
+        todos_progress: "待办 {done} / {total} · {save}",
+        save_server: "勾选已保存到网站服务器",
+        save_local: "勾选保存在这台电脑的浏览器里",
+        same_point: "{date} · {count} 个任务合在同一个点",
+        beijing_time: "北京时间",
+        beijing_predicted: "北京时间，预测",
+        predicted_paren: "预测"
+      }
+    };
+    let lang = "en";
+    function t(key) {
+      const pack = I18N[lang] || I18N.en;
+      return pack[key] != null ? pack[key] : (I18N.en[key] != null ? I18N.en[key] : key);
+    }
+    function tf(key, vars) {
+      return t(key).replace(/\{(\w+)\}/g, function (_, name) {
+        return vars && vars[name] != null ? String(vars[name]) : "";
+      });
+    }
     let useBackend = false;
     let memoryProfile = null;
     let datesMeta = null;
     let memoryTodosByYear = {};
     const REGION_META = {
       us: {
-        name: "美国",
-        heading: function (year) { return "美国国际生本科申请时间线｜" + year + " Fall"; }
+        name: function () { return t("region_us"); },
+        heading: function (year) { return tf("heading_us", { year: year }); }
       },
       hk: {
-        name: "香港",
-        heading: function (year) { return "香港国际生本科申请时间线｜" + year + " Fall"; }
+        name: function () { return t("region_hk"); },
+        heading: function (year) { return tf("heading_hk", { year: year }); }
       },
       uk: {
-        name: "英国",
-        heading: function (year) { return "英国国际生本科申请时间线｜" + year + " Entry"; }
+        name: function () { return t("region_uk"); },
+        heading: function (year) { return tf("heading_uk", { year: year }); }
       },
       all: {
-        name: "美国 + 香港 + 英国",
-        heading: function (year) { return "美 / 港 / 英 合并申请时间线｜" + year + " 入学季"; }
+        name: function () { return t("region_all"); },
+        heading: function (year) { return tf("heading_all", { year: year }); }
       }
     };
 
@@ -1709,7 +1855,73 @@
       ]
     };
 
-    const statusText = { done: "已完成", doing: "进行中", todo: "还没到" };
+    const TASK_EN = {
+      "us-prep": { name: "Prepare tests, activities, and essays", dateLabel: "2026-05 – 2026-07", summary: "Prepare SAT/ACT, English tests, activities, contests, research, and essay material. This stage spans May through July.", todos: ["Plan SAT/ACT and English test registration, sittings, and score release", "Organize activities, contests, and research with details you can use in applications", "Start collecting personal-essay material; do not wait until summer ends"] },
+      "us-common-app": { name: "Common App opens", dateLabel: "Beijing time 2026-08-01 12:00", tzNote: "Original: opens 2026-08-01 00:00 US Eastern Time", summary: "Common App opens. Start the US undergraduate application. Times on the axis are Beijing time.", todos: ["Create a Common App account and enter personal information", "List target schools and whether you will use EA / REA or RD", "Draft the activities list"] },
+      "us-essays": { name: "Finish essays and application materials", dateLabel: "2026-08 – 2026-10", summary: "Finish the personal essay, activities list, and supplements; contact recommenders; prepare transcripts and other materials.", todos: ["Finish and revise the personal essay", "Complete school supplements", "Contact recommenders and confirm how they will submit", "Prepare transcripts, English scores, and other files"] },
+      "us-stanford-arts": { name: "Stanford REA Arts Portfolio deadline", dateLabel: "Beijing time 2026-10-16 14:59", tzNote: "Original: 2026-10-15 23:59 US Pacific Time", summary: "Stanford REA Arts Portfolio deadline. Converted to Beijing time, one day later than the US local date.", todos: ["If you are applying Stanford REA with an Arts Portfolio, upload it before the Beijing-time deadline", "Check portfolio format and school requirements"] },
+      "us-harvard-mit-ea": { name: "Harvard REA / MIT EA deadline", dateLabel: "Beijing time 2026-11-02 12:59", tzNote: "Original: 2026-11-01 23:59 US Eastern Time", summary: "Harvard REA and MIT EA deadlines, converted from 23:59 Eastern on 1 November.", todos: ["Submit Harvard REA or MIT EA if they are on your list", "Recheck essays, activities, and recommendation status before submitting"] },
+      "us-stanford-caltech-rea": { name: "Stanford REA / Caltech REA deadline", dateLabel: "Beijing time 2026-11-02 15:59", tzNote: "Original: 2026-11-01 23:59 US Pacific Time", summary: "Stanford and Caltech are on the US West Coast. Same local 1 November deadline, about three hours later in Beijing time than East Coast schools.", todos: ["Submit Stanford REA or Caltech REA if they are on your list", "Do not treat “the evening of 1 November” Beijing time as the cutoff; it is already past in the US"] },
+      "us-penn-cornell-ed": { name: "Penn / Cornell ED deadline (QS 15, 16)", dateLabel: "Beijing time 2026-11-02 12:59", tzNote: "Original: 2026-11-01 23:59 US Eastern Time", summary: "QS 2026 #15 and #16: Penn and Cornell Early Decision. Converted from the common 1 November Eastern deadline.", todos: ["If you are applying Penn or Cornell ED, submit before the Beijing-time deadline", "ED is binding; confirm this is your first choice"] },
+      "us-chicago-early": { name: "UChicago EA / ED deadline (QS 13)", dateLabel: "Beijing time 2026-11-02 13:59", tzNote: "Original: 2026-11-01 23:59 US Central Time", summary: "QS 2026 #13 University of Chicago. Early rounds are usually 1 November. Chicago uses Central Time, about 13:59 on 2 November in Beijing.", todos: ["Decide EA or ED I", "Submit before the Beijing-time deadline"] },
+      "us-berkeley-uc": { name: "UC Berkeley application window closes (QS 17)", dateLabel: "Beijing time 2026-12-01 15:59", tzNote: "Original: 2026-11-30 23:59 US Pacific Time (UC season is usually 1–30 November)", summary: "QS 2026 tied #17 UC Berkeley uses the UC system. The window usually closes 30 November, shown in Beijing time.", todos: ["Submit through the UC application, not Common App", "Start on 1 November; do not wait until the 30th"] },
+      "us-early-results": { name: "Early results released", dateLabel: "mid-Dec 2026", summary: "MIT / Stanford / Harvard / Caltech early results come out around mid-December. This is a release window, not a hard deadline.", todos: ["Check your email and application portals every day", "If admitted: note the enrollment-reply deadline", "If denied or deferred: move immediately to RD applications"] },
+      "us-rd-finish": { name: "Finish RD and submit remaining schools", dateLabel: "2026-12 – 2027-01", summary: "Finish RD applications and submit remaining schools. This stage starts in December and ends in January.", todos: ["Adjust the RD list after early results", "Finish remaining supplements and submit", "Check each RD deadline (already shown in Beijing time)"] },
+      "us-harvard-rd": { name: "Harvard RD deadline", dateLabel: "Beijing time 2027-01-02 12:59", tzNote: "Original: 2027-01-01 23:59 US Eastern Time", summary: "Harvard RD deadline. 1 January 23:59 Eastern = midday 2 January Beijing time.", todos: ["Submit Harvard RD before the Beijing-time deadline"] },
+      "us-mit-ra": { name: "MIT RA deadline", dateLabel: "Beijing time 2027-01-05 12:59", tzNote: "Original: 2027-01-04 23:59 US Eastern Time", summary: "MIT Regular Action deadline, converted to Beijing time.", todos: ["Submit MIT RA before the Beijing-time deadline"] },
+      "us-caltech-rd": { name: "Caltech RD deadline", dateLabel: "Beijing time 2027-01-05 15:59", tzNote: "Original: 2027-01-04 23:59 US Pacific Time", summary: "Caltech RD uses Pacific Time, about three hours later in Beijing than MIT.", todos: ["Submit Caltech RD before the Beijing-time deadline"] },
+      "us-stanford-rd": { name: "Stanford RD deadline", dateLabel: "Beijing time 2027-01-06 15:59", tzNote: "Original: 2027-01-05 23:59 US Pacific Time", summary: "Stanford RD deadline in Beijing time, one day later than the US local date.", todos: ["Submit Stanford RD before the Beijing-time deadline"] },
+      "us-cornell-rd": { name: "Cornell RD deadline (QS 16)", dateLabel: "Beijing time 2027-01-03 12:59", tzNote: "Original: 2027-01-02 23:59 US Eastern Time", summary: "Cornell Regular Decision, converted from 2 January Eastern.", todos: ["Submit Cornell RD before the Beijing-time deadline"] },
+      "us-penn-rd": { name: "Penn RD deadline (QS 15)", dateLabel: "Beijing time 2027-01-06 12:59", tzNote: "Original: 2027-01-05 23:59 US Eastern Time", summary: "Penn Regular Decision, converted from 5 January Eastern.", todos: ["Submit Penn RD before the Beijing-time deadline"] },
+      "us-chicago-rd": { name: "UChicago RD deadline (QS 13)", dateLabel: "Beijing time 2027-01-06 13:59", tzNote: "Original: 2027-01-05 23:59 US Central Time", summary: "UChicago Regular Decision is usually early January. Converted from 23:59 Central on 5 January.", todos: ["Confirm the current official RD deadline, then submit in Beijing time"] },
+      "us-midyear": { name: "Submit Midyear Report / midyear grades", dateLabel: "mid-Feb 2027", summary: "Some schools ask for midyear grades. Check each portal for the exact date.", todos: ["See which schools need a Midyear Report", "Ask your counselor to submit midyear grades on time"] },
+      "us-mit-caltech-rd-results": { name: "MIT / Caltech RD results", dateLabel: "mid-Mar 2027", summary: "MIT and Caltech Regular Decision results are usually mid-March.", todos: ["Check email and portals; note next confirmation steps"] },
+      "us-harvard-rd-results": { name: "Harvard RD results", dateLabel: "late Mar 2027", summary: "Harvard Regular Decision results are usually late March.", todos: ["Read the decision and compare other schools’ reply dates"] },
+      "us-stanford-rd-results": { name: "Stanford RD results", dateLabel: "early Apr 2027", summary: "Stanford Regular Decision results are usually early April.", todos: ["Read the decision and make a final enrollment choice"] },
+      "us-decision-day": { name: "Confirm your college", dateLabel: "Beijing time 2027-05-02 11:59", tzNote: "Original: 2027-05-01 23:59 US Eastern Time (National College Decision Day)", summary: "US admitted students confirm their college. Shown in Beijing time.", todos: ["Accept one offer before the deadline", "Pay the enrollment deposit in the offer letter", "Decline other offers so you do not hold seats"] },
+      "uk-ucas-search": { name: "UCAS course search opens", dateLabel: "2026-04-28", summary: "UCAS 2027 Entry course search opens. Start browsing courses and universities.", todos: ["Open UCAS and search next-year courses", "Note course codes and admissions-test requirements"] },
+      "uk-ucas-form": { name: "Start the UCAS application", dateLabel: "2026-05-12", summary: "UCAS applications can be filled in.", todos: ["Create or sign in to UCAS", "Enter education and personal details first"] },
+      "uk-choose": { name: "Choose courses, universities, and the statement", dateLabel: "2026-05 – 2026-06", summary: "Choose courses and universities, write the Personal Statement, pick a referee, and check admissions tests.", todos: ["Keep choices to a maximum of five", "Start the Personal Statement", "Contact your referee", "Check whether you need UCAT / ESAT / TMUA / LNAT / UAT-UK"] },
+      "uk-admissions-tests": { name: "Register and sit admissions tests", dateLabel: "2026-06 – 2026-09", summary: "Prepare and register for UCAT / ESAT / TMUA / LNAT / UAT-UK. Medicine applicants sit UCAT. This stage runs June through September.", todos: ["Register for the tests your courses require", "Medicine applicants complete UCAT", "Put test dates on the calendar so they do not clash with UCAS"] },
+      "uk-ucas-submit": { name: "UCAS opens for submission", dateLabel: "2026-09-01", summary: "UCAS opens for submission. Oxford, Cambridge, and Medicine still have the October early deadline.", todos: ["Submit as soon as you can", "Ask your referee to confirm the reference is done"] },
+      "uk-oxbridge-med": { name: "Oxford / Cambridge / Medicine early deadline", dateLabel: "Beijing time 2026-10-16 01:00", tzNote: "Original: 2026-10-15 18:00 UK time (BST)", summary: "Oxford, Cambridge, and Medicine early deadline. 15 October 18:00 UK time is 01:00 on 16 October in Beijing.", todos: ["Submit UCAS before 01:00 Beijing time on 16 October", "Do not treat “18:00 Beijing time on the 15th” as the cutoff"] },
+      "uk-esat-tmua": { name: "ESAT / TMUA first sitting", dateLabel: "2026-10-12 – 2026-10-16", summary: "First ESAT / TMUA sitting. Check the booking system for your slot.", todos: ["Check candidate number, time, and device rules", "After the test, keep preparing interview material"] },
+      "uk-cambridge-mca": { name: "Cambridge My Cambridge Application deadline", dateLabel: "Beijing time 2026-10-23 01:00", tzNote: "Original: 2026-10-22 18:00 UK time (BST)", summary: "Cambridge supplementary application deadline; international students also submit results. Shown in Beijing time.", todos: ["Finish My Cambridge Application", "Upload results and documents required by the college"] },
+      "uk-oxford-written": { name: "Oxford Written Work deadline", dateLabel: "2026-11-10", summary: "Courses that need Written Work collect it by this date.", todos: ["Check whether your course requires Written Work", "Submit before the deadline and keep the receipt"] },
+      "uk-interview-invite": { name: "Oxbridge interview invitations", dateLabel: "Nov 2026", summary: "Oxford and Cambridge send interview invitations through November.", todos: ["Watch email, including junk mail", "Reply at once and start interview prep"] },
+      "uk-oxbridge-interview": { name: "Oxford / Cambridge interviews", dateLabel: "early to mid-Dec 2026", summary: "Oxford interviews are usually early to mid-December; Cambridge interviews are mainly in the first three weeks of December.", todos: ["Attend online or in-person as instructed", "Prepare subject questions and recent interview patterns"] },
+      "uk-oxford-results": { name: "Oxford decisions released", dateLabel: "2027-01-12", summary: "Oxford decisions are released (a results day, not a deadline).", todos: ["Read the decision", "If you have a conditional offer, note grade requirements and the reply date"] },
+      "uk-ucas-ecd": { name: "UCAS Equal Consideration Deadline", dateLabel: "Beijing time 2027-01-14 02:00", tzNote: "Original: 2027-01-13 18:00 UK time (GMT). Includes most Imperial and UCL undergraduate courses.", summary: "Equal-consideration deadline for most UK undergraduate courses. 13 January 18:00 UK time = 02:00 on 14 January Beijing time.", todos: ["Submit UCAS before 02:00 Beijing time on 14 January", "Most Imperial and UCL courses use this deadline too"] },
+      "uk-cambridge-results": { name: "Cambridge main-round decisions", dateLabel: "2027-01-27", summary: "Cambridge main-round decisions are released.", todos: ["Read the decision", "Add any exam conditions to your revision plan"] },
+      "uk-offers": { name: "Universities send offers / rejections", dateLabel: "2027-01 – 04", summary: "UK universities send offers or rejections from January through April.", todos: ["Note the reply date on every offer", "Reply Firm / Insurance in UCAS on time"] },
+      "uk-final-exams": { name: "A-Level / IB / STEP final exams", dateLabel: "2027-05 – 06", summary: "Final exam period. Conditional offers depend on these results.", todos: ["Sit the exams required by your offer", "Include extra papers such as STEP in the timetable"] },
+      "uk-results-confirm": { name: "Results published and places confirmed", dateLabel: "2027-08", summary: "Exam results are published and universities confirm places.", todos: ["Check whether you met the conditions", "Confirm enrollment through UCAS and the university"] },
+      "uk-enrol": { name: "Enrollment", dateLabel: "2027-09", summary: "Enrollment. Follow university emails for visa, housing, and registration.", todos: ["Apply for a student visa", "Confirm housing and registration dates"] },
+      "hk-open": { name: "HKU International / Non-JUPAS applications open", dateLabel: "2026-09-23", summary: "HKU Admissions: 2027 intake International / Non-JUPAS applications open on 23 September 2026. Hong Kong time is the same as Beijing time.", todos: ["Open the HKU International Qualifications page and confirm International / Non-JUPAS, not the mainland gaokao route", "Prepare up to 3 programme choices (they cannot be changed after submission)", "Prepare the HKD 600 application fee (the application is valid only after payment; non-refundable)", "Create an online account on opening day"] },
+      "hk-account": { name: "Create an account and write the Personal Statement", dateLabel: "2026-09 – 2026-10", summary: "Create the account, choose programmes, enter personal details, and write the Personal Statement.", todos: ["Enter personal details and current studies", "Choose 3 programmes", "Write the Personal Statement"] },
+      "hk-materials": { name: "Prepare references, grades, and test scores", dateLabel: "2026-10 – 2026-11", summary: "Prepare and submit references, predicted grades, transcripts, test scores, and other materials. The end date aligns with the estimated first-round deadline.", todos: ["Ask your counselor for predicted grades and a reference", "Prepare transcripts and English / standardized scores", "Enter scores in the system; do not only upload scans"] },
+      "hk-first-round": { name: "First-round deadline", dateLabel: "Beijing time 2026-11-26 12:00", summary: "Estimated: same calendar day as the official 2026 intake first-round deadline (26 November 12:00 Hong Kong time). Confirm the 2027 date on the official site.", todos: ["Submit before 12:00 if you want first-round review", "Check the 3 programme choices; they cannot be changed after submission", "If you miss first round you can still apply, but review is rolling and places may fill", "Watch the admissions page for a new 2027 deadline"] },
+      "hk-docs": { name: "Complete grades and references", dateLabel: "2026-12-03", summary: "Estimated from last year’s 3 December document date. First-round applicants should finish predicted/actual grades and references by this day.", todos: ["Remind your counselor to enter predicted or actual grades in the Counsellors’ Portal", "Submit references and supporting files", "If your counselor is late, submit within a week of the system invitation"] },
+      "hk-first-results": { name: "First-round results begin", dateLabel: "2026-12-08", summary: "Estimated from last year’s 8 December first-round results date. Offers usually must be accepted in 3–4 weeks with a non-refundable deposit.", todos: ["Check email and the application account every day", "If you receive an offer, accept and pay the deposit by the letter deadline", "Non-local students should start the visa early: HKU suggests about 4–6 weeks for assessment and 8–10 weeks for the visa"] },
+      "hk-interview": { name: "First-round interview invitations and interviews", dateLabel: "2026-12 – 2027-01", summary: "First-round interview invitations and interviews. After an offer, confirm and pay the deposit by the school deadline.", todos: ["Watch for interview emails", "Attend as instructed", "After an offer, confirm and pay the deposit on time"] },
+      "hk-rolling": { name: "Rolling admission continues", dateLabel: "2027-01 – 2027-03", summary: "Rolling review continues. Following last year’s note: if you have no offer by 31 March, treat it as later review / waitlist.", todos: ["Keep adding new grades and awards", "No news is not a no; rolling can continue for a while"] },
+      "hk-waitlist": { name: "Later review / waitlist", dateLabel: "2027-03-31", summary: "Estimated: if you still have no offer on 31 March, treat it as the next waitlist stage. You can still add new grades.", todos: ["Upload latest grades", "Keep checking the system; do not wait only for SMS"] },
+      "hk-update": { name: "Update final scores, extra documents, and interviews", dateLabel: "2027-04 – 2027-08", summary: "Rolling admission continues. You can update final scores, add documents, and attend some programme interviews. The end date aligns with the estimated system close.", todos: ["Update the system as soon as final scores are out", "Watch for extra interview or document requests"] },
+      "hk-close": { name: "Application system closes", dateLabel: "Beijing time 2027-08-21 12:00", summary: "Estimated: same calendar day as the official 2026 intake close (21 August 12:00 Hong Kong time). Confirm the 2027 close date on the official site.", todos: ["Confirm the application was submitted; do not wait until 12:00", "Add latest grades and awards", "If there is still no news in early September, last year’s note treated that cycle as unsuccessful"] },
+      "hk-visa": { name: "Confirm the offer, visa, and enrollment", dateLabel: "2027-08 – 2027-09", summary: "Confirm the offer, handle the visa, and complete enrollment.", todos: ["Confirm the offer and finish payment", "Handle visa, housing, and registration"] },
+      "hk-enrol": { name: "Enrollment", dateLabel: "2027-09", summary: "Enrollment.", todos: ["Register on campus as instructed"] }
+    };
+
+    function localizeTask(item) {
+      if (lang !== "en") return item;
+      const extra = TASK_EN[item.id];
+      if (!extra) return item;
+      return Object.assign({}, item, extra);
+    }
+
+    function statusTextOf(status) {
+      return t("status_" + status);
+    }
 
     let profile = null;
     let region = "hk";
@@ -1751,13 +1963,17 @@
     function formatDate(iso) {
       const day = iso.slice(0, 10);
       const p = day.split("-");
+      if (lang === "en") {
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        return months[Number(p[1]) - 1] + " " + Number(p[2]) + ", " + p[0];
+      }
       return p[0] + "年" + Number(p[1]) + "月" + Number(p[2]) + "日";
     }
     function formatDateTime(iso) {
       if (iso.indexOf("T") !== -1) {
         const parts = iso.split("T");
         const hm = parts[1].split(":");
-        return formatDate(parts[0]) + " " + hm[0] + ":" + hm[1] + "（北京时间）";
+        return formatDate(parts[0]) + " " + hm[0] + ":" + hm[1] + (lang === "en" ? " (" + t("beijing_time") + ")" : "（" + t("beijing_time") + "）");
       }
       return formatDate(iso);
     }
@@ -1769,6 +1985,10 @@
     }
     function formatMonth(ym) {
       const parts = ym.split("-");
+      if (lang === "en") {
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        return months[Number(parts[1]) - 1] + " " + parts[0];
+      }
       return parts[0] + "年" + Number(parts[1]) + "月";
     }
     function shiftIso(iso, delta) {
@@ -1803,13 +2023,18 @@
     function applyOfficialDates(data) {
       if (!data || !data.patches) return;
       datesMeta = data;
+      function setOutlineWhen(rid, index, value) {
+        if (OUTLINES[rid] && OUTLINES[rid].items[index]) OUTLINES[rid].items[index].when = value;
+        if (OUTLINE_EN[rid] && OUTLINE_EN[rid].items[index]) OUTLINE_EN[rid].items[index].when = value;
+      }
+      const pred = lang === "en" ? " (" + t("beijing_predicted") + ")" : "（" + t("beijing_predicted") + "）";
       const outlineById = {
-        "hk-open": function (start) { OUTLINES.hk.items[0].when = start.slice(0, 10); },
-        "hk-first-round": function (start) { OUTLINES.hk.items[3].when = start.replace("T", " ").slice(0, 16) + "（北京时间，预测）"; },
-        "hk-close": function (start) { OUTLINES.hk.items[8].when = start.replace("T", " ").slice(0, 16) + "（北京时间，预测）"; },
-        "uk-ucas-search": function (start) { OUTLINES.uk.items[0].when = start.slice(0, 10); },
-        "uk-ucas-form": function (start) { OUTLINES.uk.items[1].when = start.slice(0, 10); },
-        "uk-ucas-submit": function (start) { OUTLINES.uk.items[5].when = start.slice(0, 10); }
+        "hk-open": function (start) { setOutlineWhen("hk", 0, start.slice(0, 10)); },
+        "hk-first-round": function (start) { setOutlineWhen("hk", 3, start.replace("T", " ").slice(0, 16) + pred); },
+        "hk-close": function (start) { setOutlineWhen("hk", 11, start.replace("T", " ").slice(0, 16) + pred); },
+        "uk-ucas-search": function (start) { setOutlineWhen("uk", 0, start.slice(0, 10)); },
+        "uk-ucas-form": function (start) { setOutlineWhen("uk", 1, start.slice(0, 10)); },
+        "uk-ucas-submit": function (start) { setOutlineWhen("uk", 5, start.slice(0, 10)); }
       };
       data.patches.forEach(function (p) {
         if (!p || !p.id) return;
@@ -1903,8 +2128,9 @@
       const out = [];
       ids.forEach(function (rid) {
         const tpl = TEMPLATES[rid] || [];
-        const regionName = REGION_META[rid] ? REGION_META[rid].name : rid;
-        tpl.forEach(function (item) {
+        const regionLabel = REGION_META[rid] ? REGION_META[rid].name() : rid;
+        tpl.forEach(function (raw) {
+          const item = localizeTask(raw);
           const start = shiftIso(item.start, delta);
           const end = shiftIso(item.end || item.start, delta);
           const mark = shiftIso(item.mark || item.start, delta);
@@ -1915,22 +2141,22 @@
             dateLabel: shiftYearInText(item.dateLabel || "", delta),
             tzNote: shiftYearInText(item.tzNote || "", delta),
             summary: shiftYearInText(item.summary, delta),
-            todos: (item.todos || []).map(function (t) { return shiftYearInText(t, delta); }),
+            todos: (item.todos || []).map(function (text) { return shiftYearInText(text, delta); }),
             predicted: !!item.predicted,
             phaseName: item.name,
             regionId: rid,
-            regionName: regionName
+            regionName: regionLabel
           };
           if (start.slice(0, 7) !== end.slice(0, 7)) {
             out.push(Object.assign({}, shared, {
               id: item.id + "-start",
-              name: item.name + " · 开始",
+              name: item.name + " · " + t("role_start"),
               date: start,
               role: "start"
             }));
             out.push(Object.assign({}, shared, {
               id: item.id + "-end",
-              name: item.name + " · 结束",
+              name: item.name + " · " + t("role_end"),
               date: end,
               role: "end"
             }));
@@ -2130,8 +2356,7 @@
       const values = Object.keys(set).sort();
       monthList = values;
       select.innerHTML = values.map(function (ym) {
-        const p = ym.split("-");
-        return "<option value=\"" + ym + "\">" + p[0] + "年" + Number(p[1]) + "月</option>";
+        return "<option value=\"" + ym + "\">" + formatMonth(ym) + "</option>";
       }).join("");
       if (!values.length) {
         selectedMonth = "";
@@ -2151,10 +2376,10 @@
       const meta = REGION_META[region];
       const heading = meta.heading(entryYear);
       document.getElementById("subtitle").textContent =
-        heading + "。轴上日期是北京时间。状态会拿「今天」和每个日期自动比较。" +
+        heading + ". " + t("subtitle_axis") +
         (datesMeta && datesMeta.fetchedAt
-          ? " 时间节点已对照港大招生办、UCAS 及 QS 11–20 美英港学校官网刷新（" + datesMeta.fetchedAt.slice(0, 16).replace("T", " ") + " UTC）。"
-          : " 时间节点按港大招生办、UCAS 及 QS 11–20 美英港学校近年官网日期整理；连上后端后会自动刷新。");
+          ? tf("subtitle_refreshed", { time: datesMeta.fetchedAt.slice(0, 16).replace("T", " ") })
+          : t("subtitle_static"));
     }
 
     const OUTLINES = {
@@ -2226,12 +2451,85 @@
       }
     };
 
+    const OUTLINE_EN = {
+      us: {
+        title: "US international undergraduate timeline | {year} Fall",
+        items: [
+          { when: "2026-05 – 2026-07", what: "Prepare SAT/ACT, English tests, activities, contests, research, and essays" },
+          { when: "2026-08-01", what: "Common App opens; start the US undergraduate application" },
+          { when: "2026-08 – 2026-10", what: "Finish the personal essay, activities list, and supplements; contact recommenders; prepare transcripts and other materials" },
+          { when: "2026-10-15", what: "Stanford REA Arts Portfolio deadline" },
+          { when: "2026-11-01", what: "MIT EA, Stanford REA, Harvard REA, Caltech REA, Penn ED, Cornell ED, UChicago EA/ED deadlines (local dates; the axis shows the next day in Beijing time)" },
+          { when: "2026-11-30", what: "UC Berkeley (QS 17) UC application window closes" },
+          { when: "mid-Dec 2026", what: "MIT / Stanford / Harvard / Caltech early results released" },
+          { when: "2026-12 – 2027-01", what: "Finish RD applications and submit remaining schools" },
+          { when: "2027-01-01", what: "Harvard RD deadline" },
+          { when: "2027-01-02", what: "Cornell RD deadline" },
+          { when: "2027-01-04", what: "MIT RA deadline; Caltech RD deadline" },
+          { when: "2027-01-05", what: "Stanford RD, Penn RD, and UChicago RD deadlines" },
+          { when: "mid-Feb 2027", what: "Some schools collect a Midyear Report / midyear grades" },
+          { when: "mid-Mar 2027", what: "MIT / Caltech RD results" },
+          { when: "late Mar 2027", what: "Harvard RD results" },
+          { when: "early Apr 2027", what: "Stanford RD results" },
+          { when: "2027-05-01", what: "Admitted students confirm their college" }
+        ]
+      },
+      uk: {
+        title: "UK international undergraduate timeline | {year} Entry",
+        items: [
+          { when: "2026-04-28", what: "UCAS 2027 Entry course search opens" },
+          { when: "2026-05-12", what: "UCAS applications can be filled in" },
+          { when: "2026-05 – 2026-06", what: "Choose courses, universities, Personal Statement, and a referee; check admissions tests" },
+          { when: "2026-06 – 2026-09", what: "Prepare and register for UCAT / ESAT / TMUA / LNAT / UAT-UK" },
+          { when: "2026-07 – 2026-09", what: "Sit required admissions tests; medicine applicants sit UCAT" },
+          { when: "2026-09-01", what: "UCAS opens for submission" },
+          { when: "2026-10-16 01:00 (Beijing time)", what: "Oxford / Cambridge / Medicine early deadline" },
+          { when: "2026-10-12 – 2026-10-16", what: "ESAT / TMUA first sitting" },
+          { when: "2026-10-23 01:00 (Beijing time)", what: "Cambridge My Cambridge Application deadline; international students submit results" },
+          { when: "2026-11-10", what: "Oxford Written Work deadline" },
+          { when: "Nov 2026", what: "Oxford / Cambridge interview invitations" },
+          { when: "early to mid-Dec 2026", what: "Oxford interviews" },
+          { when: "first 3 weeks of Dec 2026", what: "Cambridge main interview period" },
+          { when: "2027-01-12", what: "Oxford decisions released" },
+          { when: "2027-01-14 02:00 (Beijing time)", what: "UCAS Equal Consideration Deadline for most UK undergraduate courses, including most Imperial and UCL courses" },
+          { when: "2027-01-27", what: "Cambridge main-round decisions" },
+          { when: "2027-01 – 04", what: "UK universities send offers / rejections" },
+          { when: "2027-05 – 06", what: "A-Level / IB / STEP final exams" },
+          { when: "2027-08", what: "Results published and places confirmed" },
+          { when: "2027-09", what: "Enrollment" }
+        ]
+      },
+      hk: {
+        title: "Hong Kong international undergraduate timeline | {year} Fall",
+        items: [
+          { when: "2026-09-23", what: "HKU International / Non-JUPAS applications open" },
+          { when: "2026-09 – 2026-10", what: "Create an account; choose programmes; enter personal details; write the Personal Statement" },
+          { when: "2026-10 – 2026-11", what: "Prepare and submit references, predicted grades, transcripts, test scores, and other materials" },
+          { when: "2026-11-26 12:00 (Beijing time, estimated)", what: "HKU first-round deadline. Estimated from the official 2026 intake date of 26 November 12:00; confirm the current year" },
+          { when: "2026-12-03 (estimated)", what: "First-round applicants should finish grades and references by this day (based on last year’s 3 December note)" },
+          { when: "2026-12-08 (estimated)", what: "First-round results begin (based on last year’s 8 December note)" },
+          { when: "2026-12 – 2027-01", what: "First-round interview invitations and interviews" },
+          { when: "from Dec 2026", what: "First-round offers go out; confirm and pay the deposit by the school deadline" },
+          { when: "2027-01 – 2027-03", what: "Rolling admission continues" },
+          { when: "2027-03-31 (estimated)", what: "If you still have no offer, treat this as later review / waitlist" },
+          { when: "2027-04 – 2027-08", what: "Rolling admission continues; you can update final scores, add documents, and attend some interviews" },
+          { when: "2027-08-21 12:00 (Beijing time, estimated)", what: "HKU international application system closes. Estimated from the official 2026 intake close of 21 August 12:00" },
+          { when: "2027-08 – 2027-09", what: "Confirm the offer, handle the visa, and complete enrollment" },
+          { when: "2027-09", what: "Enrollment" }
+        ]
+      }
+    };
+
+    function outlineData(rid) {
+      return lang === "en" && OUTLINE_EN[rid] ? OUTLINE_EN[rid] : OUTLINES[rid];
+    }
+
     function renderSources() {
       const box = document.getElementById("sources");
       const ids = region === "all" ? ["us", "uk", "hk"] : [region];
       const delta = entryYear - 2027;
       box.innerHTML = ids.map(function (rid) {
-        const data = OUTLINES[rid];
+        const data = outlineData(rid);
         if (!data) return "";
         const title = data.title.replace("{year}", String(entryYear));
         const items = data.items.map(function (item) {
@@ -2250,21 +2548,21 @@
       const phase = activePhase(milestones, today);
       const todayThisMonth = monthKey(todayIso(today)) === selectedMonth;
       const todayDay = today.getDate();
-      let hint = "这个月已经过完，「今天」标在轴的最右边";
+      let hint = t("hint_past");
       if (todayThisMonth) {
         hint = phase
-          ? "今天正在「" + phaseLabel(phase) + "」阶段（" + phase.dateLabel + "）。玫红标记落在本月 " + todayDay + " 日附近。"
-          : "「今天」标在本月日历约 " + todayDay + " 日的位置";
+          ? tf("hint_today_phase", { phase: phaseLabel(phase), label: phase.dateLabel, day: todayDay })
+          : tf("hint_today", { day: todayDay });
       } else if (monthKey(todayIso(today)) < selectedMonth) {
-        hint = "这个月还没到，「今天」标在轴的最左边";
+        hint = t("hint_future");
       }
-      const regionName = REGION_META[region].name;
+      const regionLabel = REGION_META[region].name();
       const taskCount = dated.reduce(function (n, g) { return n + g.items.length; }, 0);
       if (!dated.length) {
-        el.innerHTML = "<span class=\"chip\">今天 " + esc(todayLabel) + "</span><strong>正在看 " + esc(formatMonth(selectedMonth)) + " · " + esc(regionName) + "</strong><span>" + esc(hint) + "</span>";
+        el.innerHTML = "<span class=\"chip\">" + esc(tf("today_chip", { date: todayLabel })) + "</span><strong>" + esc(tf("viewing", { month: formatMonth(selectedMonth), region: regionLabel })) + "</strong><span>" + esc(hint) + "</span>";
         return;
       }
-      el.innerHTML = "<span class=\"chip\">今天 " + esc(todayLabel) + "</span><strong>正在看 " + esc(formatMonth(selectedMonth)) + " · " + dated.length + " 个日期、" + taskCount + " 个任务</strong><span>" + esc(hint) + "</span>";
+      el.innerHTML = "<span class=\"chip\">" + esc(tf("today_chip", { date: todayLabel })) + "</span><strong>" + esc(tf("viewing_tasks", { month: formatMonth(selectedMonth), days: dated.length, tasks: taskCount })) + "</strong><span>" + esc(hint) + "</span>";
     }
 
     function renderPhaseNote() {
@@ -2275,12 +2573,12 @@
       const monthPhase = coveringPhaseForMonth(selectedMonth);
       if (phase && todayThisMonth) {
         note.hidden = false;
-        note.textContent = "今天在这：你正处于「" + phaseLabel(phase) + "」（" + phase.dateLabel + "）。";
+        note.textContent = tf("phase_today", { phase: phaseLabel(phase), label: phase.dateLabel });
         return;
       }
       if (!dated.length && monthPhase) {
         note.hidden = false;
-        note.textContent = "本月没有新的截止点，但「" + phaseLabel(monthPhase) + "」还在进行（" + monthPhase.dateLabel + "）。";
+        note.textContent = tf("phase_cover", { phase: phaseLabel(monthPhase), label: monthPhase.dateLabel });
         return;
       }
       note.hidden = true;
@@ -2293,7 +2591,7 @@
 
     function formatDayShort(iso) {
       const p = dateKey(iso).split("-");
-      return Number(p[2]) + "日";
+      return lang === "en" ? String(Number(p[2])) : Number(p[2]) + "日";
     }
 
     function isTickDay(iso) {
@@ -2327,7 +2625,7 @@
       }
       return (
         "<div class=\"today-pin show" + extra + "\" style=\"--x:" + x + "%\">" +
-          "<span class=\"today-label\">📍 今天</span>" +
+          "<span class=\"today-label\">📍 " + esc(t("today")) + "</span>" +
           "<i class=\"today-stem\" aria-hidden=\"true\"></i>" +
         "</div>"
       );
@@ -2438,7 +2736,8 @@
       const progress = ym < todayKey ? 100 : (ym > todayKey ? 0 : dayPercent(todayIso(today)));
       const ticksDays = daysInMonth(ym);
       const mid = Math.round(ticksDays / 2);
-      const ticks = "<div class=\"month-ticks\" aria-hidden=\"true\"><span>1日</span><span>" + mid + "日</span><span>" + ticksDays + "日</span></div>";
+      const tick = function (n) { return lang === "en" ? String(n) : n + "日"; };
+      const ticks = "<div class=\"month-ticks\" aria-hidden=\"true\"><span>" + tick(1) + "</span><span>" + tick(mid) + "</span><span>" + tick(ticksDays) + "</span></div>";
       const drops = captionDropLevels(groups);
       const paneH = paneContentHeight(groups, drops);
       const nodes = groups.map(function (g, index) {
@@ -2451,7 +2750,7 @@
         );
       }).join("");
       const empty = !groups.length
-        ? "<p class=\"empty-month\">" + esc(coveringPhaseForMonth(ym) ? "这个月还没有新的截止点" : "这个月还没有申请节点") + "</p>"
+        ? "<p class=\"empty-month\">" + esc(coveringPhaseForMonth(ym) ? t("empty_cover") : t("empty_month")) + "</p>"
         : "";
       return (
         "<article class=\"month-pane\" data-month=\"" + ym + "\" style=\"min-height:" + paneH + "px\">" +
@@ -2586,12 +2885,12 @@
         "<div class=\"detail-block\">" +
           "<div class=\"detail-head\"><h3>" + esc(item.name) + "</h3>" +
           (item.regionName ? "<span class=\"badge region-" + esc(item.regionId) + "\">" + esc(item.regionName) + "</span>" : "") +
-          "<span class=\"badge " + item.status + "\">" + statusText[item.status] + "</span>" +
-          (here ? "<span class=\"badge here\">今天在这</span>" : "") +
-          (item.predicted ? "<span class=\"badge predicted\">预测</span>" : "") +
+          "<span class=\"badge " + item.status + "\">" + statusTextOf(item.status) + "</span>" +
+          (here ? "<span class=\"badge here\">" + esc(t("here")) + "</span>" : "") +
+          (item.predicted ? "<span class=\"badge predicted\">" + esc(t("predicted")) + "</span>" : "") +
           "</div>" +
           "<p class=\"summary\">" + esc(item.summary) + (item.tzNote ? " " + esc(item.tzNote) : "") + "</p>" +
-          "<p class=\"progress-note\">待办 " + doneCount + " / " + (item.todos || []).length + " · " + (useBackend ? "勾选已保存到网站服务器" : "勾选保存在这台电脑的浏览器里") + "</p>" +
+          "<p class=\"progress-note\">" + esc(tf("todos_progress", { done: doneCount, total: (item.todos || []).length, save: useBackend ? t("save_server") : t("save_local") })) + "</p>" +
           "<ul class=\"todos\">" + checks + "</ul>" +
         "</div>"
       );
@@ -2603,7 +2902,7 @@
       if (!group || !group.items.length) { box.hidden = true; box.innerHTML = ""; return; }
       box.hidden = false;
       const dayHead = group.items.length > 1
-        ? "<p class=\"progress-note\" style=\"margin-top:0\">" + esc(formatDate(group.date)) + " · " + group.items.length + " 个任务合在同一个点</p>"
+        ? "<p class=\"progress-note\" style=\"margin-top:0\">" + esc(tf("same_point", { date: formatDate(group.date), count: group.items.length })) + "</p>"
         : "";
       box.innerHTML = dayHead + group.items.map(itemDetailHtml).join("");
     }
@@ -2675,11 +2974,11 @@
       const age = Number(raw);
       const err = document.getElementById("setupError");
       if (!raw || !/^\d+$/.test(raw) || age < 12 || age > 22) {
-        err.textContent = "请填写 12 到 22 之间的周岁整数。";
+        err.textContent = t("setup_err_age");
         return;
       }
       if (!pickedRegion) {
-        err.textContent = "请先选择想申请的地区。";
+        err.textContent = t("setup_err_region");
         return;
       }
       err.textContent = "";
@@ -2791,7 +3090,50 @@
     document.getElementById("monthNext").addEventListener("click", function () { goMonth(1); });
     document.getElementById("jumpToday").addEventListener("click", jumpToTodayMonth);
 
+    function applyStaticI18n() {
+      document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+      const nodes = document.querySelectorAll("[data-i18n]");
+      for (let i = 0; i < nodes.length; i++) {
+        nodes[i].textContent = t(nodes[i].getAttribute("data-i18n"));
+      }
+      const phs = document.querySelectorAll("[data-i18n-placeholder]");
+      for (let j = 0; j < phs.length; j++) {
+        phs[j].setAttribute("placeholder", t(phs[j].getAttribute("data-i18n-placeholder")));
+      }
+      const arias = document.querySelectorAll("[data-i18n-aria]");
+      for (let k = 0; k < arias.length; k++) {
+        arias[k].setAttribute("aria-label", t(arias[k].getAttribute("data-i18n-aria")));
+      }
+      const langBtn = document.getElementById("navLang");
+      if (langBtn) langBtn.textContent = t("lang_btn");
+    }
+
+    function setLang(next) {
+      lang = next === "zh" ? "zh" : "en";
+      try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+      applyStaticI18n();
+      if (datesMeta) applyOfficialDates(datesMeta);
+      if (profile) applyProfile(profile);
+      else document.getElementById("subtitle").textContent = t("subtitle_base");
+      if (!document.getElementById("helpModal").hidden) fillHelpModal();
+    }
+
+    function initLang() {
+      try {
+        const saved = localStorage.getItem(LANG_KEY);
+        lang = (saved === "zh" || saved === "en") ? saved : "en";
+      } catch (e) {
+        lang = "en";
+      }
+      applyStaticI18n();
+    }
+
+    document.getElementById("navLang").addEventListener("click", function () {
+      setLang(lang === "en" ? "zh" : "en");
+    });
+
     (function boot() {
+      initLang();
       api("GET", "/api/dates").then(function (data) {
         applyOfficialDates(data);
       }).catch(function () {});
