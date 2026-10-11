@@ -28,6 +28,12 @@ function keysOf(block) {
   return keys;
 }
 
+check("page type is slightly larger", function () {
+  assert.ok(/body\s*\{[\s\S]*?font-size:\s*1[78]px/.test(html));
+  assert.ok(html.indexOf("font-size: 14px") !== -1);
+  assert.ok(html.indexOf("font-size: 13px") !== -1);
+});
+
 check("html defaults to English", function () {
   assert.ok(html.indexOf('<html lang="en">') !== -1);
   assert.ok(html.indexOf('id="navLang"') !== -1);
