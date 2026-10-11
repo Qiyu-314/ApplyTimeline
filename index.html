@@ -24,6 +24,18 @@
     }
 
     * { box-sizing: border-box; }
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    html { scroll-padding-top: 72px; }
     html, body { margin: 0; padding: 0; }
     body {
       font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
@@ -35,6 +47,131 @@
       min-height: 100vh;
     }
 
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 10px 18px;
+      background: rgba(20, 53, 40, 0.96);
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(20, 32, 51, 0.16);
+    }
+    .topbar-brand {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      cursor: default;
+      user-select: none;
+      pointer-events: none;
+    }
+    .topbar-links {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .topbar-links a,
+    .topbar-links button {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .topbar-links a:hover,
+    .topbar-links button:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .help-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      background: rgba(20, 32, 51, 0.48);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .help-modal[hidden] { display: none; }
+    .help-card {
+      width: min(640px, 100%);
+      max-height: min(80vh, 720px);
+      overflow: auto;
+      background: #fff;
+      color: var(--ink);
+      border-radius: 28px;
+      padding: 26px 24px 22px;
+      box-shadow: var(--shadow);
+    }
+    .help-card h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+    }
+    .help-card p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+    }
+    .help-card p:last-of-type { margin-bottom: 18px; }
+    .help-close {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      border: 0;
+      background: #143528;
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+    .help-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .help-ack {
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      border: 0;
+      background: #2563eb;
+      color: #fff;
+      border-radius: 999px;
+      padding: 8px 16px;
+      cursor: pointer;
+    }
+
+    .back-top {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 35;
+      width: 46px;
+      height: 46px;
+      border: 0;
+      border-radius: 50%;
+      background: #143528;
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(20, 32, 51, 0.22);
+    }
+    .back-top:hover { background: #1f5a42; }
+
     .page {
       max-width: 1180px;
       margin: 0 auto;
@@ -45,7 +182,7 @@
       background: linear-gradient(135deg, #143528 0%, #1f5a42 48%, #2563eb 140%);
       color: #fff;
       border-radius: 28px;
-      padding: 28px 28px 24px;
+      padding: 16px 18px;
       box-shadow: var(--shadow);
       position: relative;
       overflow: hidden;
@@ -81,7 +218,7 @@
       font-size: 16px;
     }
     .today-banner {
-      margin-top: 18px;
+      margin-top: 0;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
@@ -103,12 +240,13 @@
     }
 
     .timeline-card {
+      scroll-margin-top: 72px;
       margin-top: 22px;
       background: var(--card);
       border-radius: 28px;
       padding: 22px 18px 18px;
       box-shadow: var(--shadow);
-      overflow: visible;
+      overflow: hidden;
       animation: rise 0.65s var(--ease) 0.06s both;
     }
     .section-title {
@@ -123,6 +261,7 @@
     .sim-bar {
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       gap: 8px;
       background: #fff4ec;
       border: 1px solid #ffd2a8;
@@ -146,11 +285,237 @@
       cursor: pointer;
     }
 
-    /* 桌面：横轴。上方留给 📍 今天 标签 + 竖线 */
-    .track-wrap {
-      position: relative;
-      padding: 88px 4px 8px;
+    /* 整条月份轴：左右滑动换月；每一页裁切，避免隔壁月文字漏进来 */
+    .swipe-hint {
+      margin: 0 8px 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
     }
+    .track-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0;
+      overflow: hidden;
+    }
+    .month-nav {
+      position: static;
+      flex: 0 0 40px;
+      width: 40px;
+      height: 40px;
+      margin: 0;
+      border: 0;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 6px 16px rgba(20, 32, 51, 0.16);
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--ink);
+      z-index: 8;
+    }
+    .month-nav.prev,
+    .month-nav.next { left: auto; right: auto; top: auto; }
+    .month-nav:disabled { opacity: 0.3; cursor: default; }
+    .jump-today {
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      border: 0;
+      background: #ffe4ef;
+      color: var(--today);
+      border-radius: 999px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .track-scroller {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      cursor: grab;
+      touch-action: pan-x;
+    }
+    .track-scroller:active { cursor: grabbing; }
+    .month-pane {
+      box-sizing: border-box;
+      flex: 0 0 100%;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      position: relative;
+      overflow: hidden;
+      padding: 76px 28px 48px;
+      min-height: 520px;
+    }
+    .pane-month-label {
+      position: absolute;
+      top: 10px;
+      left: 28px;
+      right: 28px;
+      margin: 0;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--muted);
+    }
+    .month-pane .rail {
+      position: relative;
+      height: 48px;
+      margin: 0 8px;
+    }
+    .month-pane .axis {
+      left: 0;
+      right: 0;
+      top: 21px;
+      transform: none;
+      animation: none;
+    }
+    .month-pane .nodes {
+      position: relative;
+      z-index: 3;
+      display: block;
+      min-width: 0;
+      width: 100%;
+      height: 48px;
+      overflow: visible;
+    }
+    .month-pane .node {
+      position: absolute;
+      top: 0;
+      left: var(--x);
+      width: 48px;
+      margin-left: -24px;
+      transform: none;
+      flex: none;
+      z-index: 3;
+    }
+    .month-pane .node.open { z-index: 6; }
+    .month-pane .caption {
+      position: absolute;
+      top: calc(76px + (var(--drop, 0) * 1px));
+      left: 50%;
+      width: 132px;
+      max-width: 132px;
+      margin: 0;
+      padding: 0 2px;
+      transform: translateX(-50%);
+      z-index: 3;
+    }
+    .month-pane .node.near-start .caption {
+      left: 0;
+      transform: none;
+      text-align: left;
+    }
+    .month-pane .node.near-end .caption {
+      left: auto;
+      right: 0;
+      transform: none;
+      text-align: right;
+    }
+    .month-pane .node.near-start .caption .region-tag,
+    .month-pane .node.near-end .caption .region-tag { margin-left: 0; margin-right: 0; }
+    .month-ticks {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 4px 8px 0;
+      min-height: 20px;
+      font-size: 11px;
+      line-height: 20px;
+      font-weight: 800;
+      color: var(--muted);
+      position: relative;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .month-pane .today-pin {
+      left: var(--x);
+      top: 24px;
+      width: max-content;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      transform: translate(-50%, -100%);
+      opacity: 1;
+      z-index: 7;
+    }
+    .month-pane .today-pin .today-label,
+    .month-pane .today-pin.at-start .today-label,
+    .month-pane .today-pin.at-end .today-label {
+      position: static;
+      left: auto;
+      bottom: auto;
+      transform: none;
+      margin: 0;
+    }
+    .month-pane .today-pin .today-stem {
+      position: static;
+      display: block;
+      left: auto;
+      bottom: auto;
+      transform: none;
+      width: 2px;
+      height: 28px;
+      margin: -2px 0 0;
+    }
+    .caption .task-line {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+    .caption .task-line:first-child,
+    .caption time + .task-line { margin-top: 2px; }
+    .month-pane .caption time {
+      margin: 0;
+      line-height: 1.2;
+    }
+    .month-pane .caption.single .task-line {
+      margin-top: 0;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .month-pane .node.near-start .caption.single .task-line { align-items: flex-start; }
+    .month-pane .node.near-end .caption.single .task-line { align-items: flex-end; }
+    .month-pane .node.near-start .task-line { justify-content: flex-start; }
+    .month-pane .node.near-end .task-line { justify-content: flex-end; }
+    .caption .task-line .region-tag {
+      display: inline-block;
+      margin: 0;
+    }
+    .month-pane .caption .task-line strong {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-size: 12px;
+      margin: 0;
+    }
+    .detail-block {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .detail-block:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    /* 桌面：横轴。上方留给 📍 今天 标签 + 竖线 */
     .rail {
       position: relative;
       min-height: 48px;
@@ -164,9 +529,6 @@
       border-radius: 99px;
       background: #efe8dc;
       overflow: hidden;
-      transform: scaleX(0);
-      transform-origin: left center;
-      animation: growX 0.85s var(--ease) forwards;
       z-index: 1;
     }
     .axis-fill {
@@ -298,7 +660,7 @@
       margin-top: 8px;
       text-align: center;
       width: 100%;
-      max-width: 150px;
+      max-width: 180px;
       padding: 0 4px 8px;
       transition: color 0.25s ease;
     }
@@ -314,6 +676,49 @@
       font-size: 12px;
       font-weight: 700;
     }
+    .caption .range {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #c45a00;
+      line-height: 1.35;
+    }
+    .caption .tz {
+      display: block;
+      margin-top: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #8b9aab;
+      line-height: 1.35;
+    }
+    .caption .region-tag {
+      display: block;
+      width: fit-content;
+      max-width: 100%;
+      margin: 0 auto 5px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .caption .region-tag.us,
+    .badge.region-us { background: #2563eb; color: #fff; }
+    .caption .region-tag.uk,
+    .badge.region-uk { background: #6d28d9; color: #fff; }
+    .caption .region-tag.hk,
+    .badge.region-hk { background: #163d2e; color: #fff; }
+    .caption .pred-tag {
+      display: inline-block;
+      margin-top: 4px;
+      background: #fff4ec;
+      color: #c45a00;
+      border-radius: 999px;
+      padding: 1px 7px;
+      font-size: 10px;
+      font-weight: 800;
+    }
     .node.open .caption strong { color: var(--accent); }
     .today-slot {
       flex: 0.85;
@@ -321,8 +726,9 @@
       min-height: 48px;
       pointer-events: none;
     }
-    .empty-month {
-      margin: 10px 12px 0;
+    .month-pane .empty-month {
+      text-align: center;
+      margin: 18px 12px 0;
       color: var(--muted);
       font-size: 14px;
       font-weight: 700;
@@ -362,6 +768,122 @@
     .badge.done { background: var(--done); color: #fff; }
     .badge.doing { background: var(--doing); color: #fff; }
     .badge.todo { background: var(--todo); color: #7a3b00; }
+    .badge.predicted { background: #fff4ec; color: #c45a00; }
+    .badge.here { background: var(--today); color: #fff; }
+
+    .change-profile {
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      border: 0;
+      background: #eef4f8;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
+    .phase-note {
+      margin: 8px 12px 12px;
+      padding: 12px 14px;
+      background: #fff4ec;
+      border: 1px solid #ffd2a8;
+      border-radius: 14px;
+      color: #c45a00;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .setup {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(20, 32, 51, 0.48);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+    .setup[hidden] { display: none; }
+    .setup-card {
+      width: min(540px, 100%);
+      background: #fff;
+      border-radius: 28px;
+      padding: 28px 26px 24px;
+      box-shadow: var(--shadow);
+      animation: rise 0.45s var(--ease) both;
+    }
+    .setup-card h2 {
+      margin: 10px 0 8px;
+      font-size: 26px;
+    }
+    .setup-lead {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .field-label {
+      display: block;
+      font-weight: 800;
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+    .setup input[type="number"] {
+      width: 100%;
+      font: inherit;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 2px solid #e8ddd0;
+      margin-bottom: 18px;
+      outline: none;
+    }
+    .setup input[type="number"]:focus { border-color: #1f5a42; }
+    .region-picks {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .region-picks button {
+      font: inherit;
+      font-weight: 800;
+      padding: 12px 8px;
+      border-radius: 16px;
+      border: 2px solid #e8ddd0;
+      background: #fff;
+      cursor: pointer;
+    }
+    .region-picks button[data-region="all"] {
+      grid-column: 1 / -1;
+    }
+    .region-picks button.on {
+      border-color: #1f5a42;
+      background: #eafaf3;
+      color: #143528;
+    }
+    .setup-error {
+      color: #e11d70;
+      font-size: 13px;
+      font-weight: 700;
+      min-height: 1.2em;
+      margin: 0 0 12px;
+    }
+    .setup-go {
+      width: 100%;
+      font: inherit;
+      font-weight: 800;
+      font-size: 16px;
+      padding: 14px;
+      border: 0;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #143528, #2563eb);
+      color: #fff;
+      cursor: pointer;
+    }
     .detail .summary {
       margin: 0 0 12px;
       color: #b7c4d0;
@@ -407,14 +929,36 @@
     }
 
     footer.sources {
+      scroll-margin-top: 72px;
       margin-top: 18px;
-      padding: 16px 18px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.6;
+      padding: 20px 22px 24px;
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.65;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
     }
-    footer.sources a { color: var(--hku); font-weight: 700; word-break: break-all; }
-    footer.sources ol { padding-left: 18px; margin: 8px 0 0; }
+    footer.sources h3 {
+      margin: 0 0 16px;
+      font-size: 18px;
+    }
+    footer.sources h3:not(:first-child) {
+      margin-top: 28px;
+      padding-top: 8px;
+      border-top: 1px solid #efe8dc;
+    }
+    footer.sources .outline-item {
+      margin: 0 0 14px;
+    }
+    footer.sources .outline-item .when {
+      font-weight: 800;
+      color: #143528;
+    }
+    footer.sources .outline-item p {
+      margin: 4px 0 0;
+      color: var(--muted);
+    }
 
     @keyframes rise {
       from { opacity: 0; transform: translateY(12px); }
@@ -438,68 +982,21 @@
       100% { opacity: 1; transform: scale(1); }
     }
 
-    /* 手机：竖轴。圆点在左、文字在右，热区够大，标记不挡点击 */
+    /* 手机也用同一条横轴，左右滑换月；节点仍按日期落在月内 */
     @media (max-width: 768px) {
       .section-title { flex-direction: column; align-items: flex-start; }
-      .track-wrap { padding: 12px 0 8px 0; overflow: visible; }
-      .rail { min-height: 0; }
-      .axis {
-        left: 23px;
-        right: auto;
-        top: 24px;
-        bottom: 24px;
-        width: 6px;
-        height: auto;
-        transform: scaleY(0);
-        transform-origin: top center;
-        animation: growY 0.85s var(--ease) forwards;
+      .month-pane {
+        padding: 68px 16px 40px;
+        min-height: 500px;
       }
-      .axis-fill {
-        width: 100%;
-        height: var(--progress, 0%);
-        background: linear-gradient(180deg, #12a060 0%, #7ed9a8 40%, #ffb347 78%, #ff7a1a 100%);
-      }
-      .nodes {
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-        gap: 0;
-      }
-      .node {
-        display: grid;
-        grid-template-columns: 48px 1fr;
-        align-items: center;
-        width: 100%;
-        min-height: 72px;
-        text-align: left;
-      }
-      .caption {
-        margin: 0;
-        text-align: left;
-        max-width: none;
-        padding: 10px 8px 10px 6px;
-      }
-      .today-slot {
-        flex: none;
-        width: 48px;
-        min-width: 0;
-        min-height: 36px;
-      }
-      .empty-month { margin-left: 56px; }
-      .today-stem {
-        width: 36px;
-        height: 2px;
-        left: 0;
-        top: 0;
-        bottom: auto;
-        transform: none;
-      }
-      .today-label {
-        left: 40px;
-        bottom: auto;
-        top: 0;
-        transform: translateY(-50%);
-      }
+      .pane-month-label { left: 16px; right: 16px; }
+      .month-nav { width: 34px; height: 34px; flex-basis: 34px; }
+      .track-wrap { gap: 8px; }
+      .region-picks { display: flex; flex-direction: column; }
+      .region-picks button[data-region="all"] { grid-column: auto; }
+      .topbar { padding: 10px 12px; }
+      .topbar-links a,
+      .topbar-links button { font-size: 12px; padding: 6px 10px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -514,200 +1011,758 @@
   </style>
 </head>
 <body>
+  <nav class="topbar" aria-label="网站导航">
+    <span class="topbar-brand">ApplyTimeline</span>
+    <div class="topbar-links">
+      <button type="button" id="navHow">怎么用</button>
+      <a href="#timeline">时间轴</a>
+      <a href="#sources">文字时间线</a>
+      <button type="button" id="navChangeProfile">更改年龄 / 地区</button>
+    </div>
+  </nav>
+
+  <div class="help-modal" id="helpModal" hidden>
+    <div class="help-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <h2 id="helpTitle">怎么用 ApplyTimeline</h2>
+      <p id="helpSetup"></p>
+      <p id="helpSubtitle"></p>
+      <p id="helpSwipe"></p>
+      <div class="help-actions">
+        <button type="button" class="help-ack" id="helpAck">已知晓</button>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="back-top" id="backTop" aria-label="回到顶部">↑</button>
+
+  <div class="setup" id="setup" hidden>
+    <div class="setup-card">
+      <span class="eyebrow" style="background:#eafaf3;color:#143528;border-color:#cde8d9;">升学雷达 · 申请时间线规划器</span>
+      <h2>先告诉我你的情况</h2>
+      <p class="setup-lead">填写周岁和想申请的地区。时间线会按你的年龄换算申请季，英美截止时刻会先换成北京时间再标到轴上。</p>
+      <label class="field-label" for="ageInput">你的年龄（周岁）</label>
+      <input id="ageInput" type="number" inputmode="numeric" min="12" max="22" step="1" placeholder="例如 16" />
+      <span class="field-label">想申请的地区</span>
+      <div class="region-picks" id="regionPicks">
+        <button type="button" data-region="us">美国</button>
+        <button type="button" data-region="hk">香港</button>
+        <button type="button" data-region="uk">英国</button>
+        <button type="button" data-region="all">美国 + 香港 + 英国</button>
+      </div>
+      <p class="setup-error" id="setupError"></p>
+      <button type="button" class="setup-go" id="setupGo">查看我的时间线</button>
+      <button type="button" class="change-profile" id="setupCancel" hidden style="width:100%;margin-top:10px;padding:12px;">返回时间线</button>
+    </div>
+  </div>
+
   <div class="page">
     <header class="hero">
-      <span class="eyebrow">升学雷达 · 申请时间线规划器</span>
-      <h1>ApplyTimeline</h1>
-      <p class="lede">
-        这条时间线按香港大学招生办官网的国际学历 / Non-JUPAS 申请节点排好。
-        状态不会写死，会拿「今天」和每个日期自动比较。
-      </p>
+      <h1 class="visually-hidden">ApplyTimeline</h1>
+      <p class="visually-hidden" id="subtitle">先选择年龄和申请地区，再查看专属时间线。状态会拿「今天」和每个日期自动比较。</p>
       <div class="today-banner" id="todayBanner"></div>
     </header>
 
-    <section class="timeline-card">
+    <section class="timeline-card" id="timeline">
       <div class="section-title">
-        <h2>申请季时间轴</h2>
+        <h2 id="timelineHeading">申请季时间轴</h2>
         <div class="sim-bar">
           <label for="simMonth">查看月份</label>
           <select id="simMonth"></select>
+          <button type="button" class="jump-today" id="jumpToday">回到今天</button>
         </div>
       </div>
+      <div class="phase-note" id="phaseNote" hidden></div>
+      <p class="swipe-hint">点左右箭头或滑动，切换月份。节点按日期落在月内；同一天的任务合在一个点里。</p>
       <div class="track-wrap" id="trackWrap">
-        <div class="today-pin" id="todayPin">
-          <i class="today-stem" aria-hidden="true"></i>
-          <span class="today-label">📍 今天</span>
-        </div>
-        <div class="rail">
-          <div class="axis" aria-hidden="true"><div class="axis-fill" id="axisFill"></div></div>
-          <div class="nodes" id="nodes"></div>
-        </div>
+        <button type="button" class="month-nav prev" id="monthPrev" aria-label="上个月">‹</button>
+        <div class="track-scroller" id="trackScroller" tabindex="0" aria-label="按月份滑动的申请时间轴"></div>
+        <button type="button" class="month-nav next" id="monthNext" aria-label="下个月">›</button>
       </div>
       <div class="detail" id="detail" hidden></div>
     </section>
 
-    <footer class="sources">
-      <strong>数据来源（请你对照官网核对）</strong>
-      <p>本页节点来自港大招生办「International Qualifications」页面的 Important Dates，以及页顶对 2027 入学开放日的公告。待办是根据同一页面说明改写成学生能执行的句子，不是额外发明的截止日期。</p>
-      <ol>
-        <li>招生办国际学历申请页（含 2027 入学开放日 + Important Dates）：<br /><a href="https://admissions.hku.hk/apply/international-qualifications" target="_blank" rel="noopener">https://admissions.hku.hk/apply/international-qualifications</a></li>
-        <li>同一页简体中文版：<br /><a href="https://admissions.hku.hk/zh-hans/apply/international-qualifications" target="_blank" rel="noopener">https://admissions.hku.hk/zh-hans/apply/international-qualifications</a></li>
-        <li>2026 入学 IAS/NJ 总说明 PDF（首轮 11 月 26 日、最终截止 8 月 21 日、9 月初仍无消息可视为未录取）：<br /><a href="https://admissions.hku.hk/sites/default/files/2025-09/General%20Information%20NJ%202026.pdf" target="_blank" rel="noopener">https://admissions.hku.hk/sites/default/files/2025-09/General%20Information%20NJ%202026.pdf</a></li>
-      </ol>
-      <p>说明：官网 Important Dates 里「首轮截止」和「开始滚动评审」都在 2025-11-26，时间轴上合成一个节点，滚动说明写进待办。内地高考申请是另一套日历，见 <a href="https://admissions.hku.hk/zh-hans/apply/mainland" target="_blank" rel="noopener">内地本科生入学计划</a>。</p>
-    </footer>
+    <footer class="sources" id="sources"></footer>
   </div>
 
   <script>
-    // ========== 里程碑数据：只改这里，界面会跟着变 ==========
-    const milestones = [
-      {
-        id: "open-2026",
-        name: "开始网上申请",
-        date: "2025-09-24",
-        summary: "官网 Important Dates 第一条：Start your application。国际学历 / Non-JUPAS 申请系统在这一天开放。",
-        todos: [
-          "打开港大招生办国际学历申请页，确认自己走的是 International / Non-JUPAS，不是内地高考通道",
-          "准备最多 3 个本科专业志愿（提交后不能再改志愿）",
-          "准备申请费港币 600 元（缴交后才算申请成功，不可退还）",
-          "注册网上申请账号，先把个人信息和在读课程填上"
-        ]
+    const PROFILE_KEY = "applytimeline-profile-v1";
+    let useBackend = false;
+    let memoryProfile = null;
+    let datesMeta = null;
+    let memoryTodosByYear = {};
+    const REGION_META = {
+      us: {
+        name: "美国",
+        heading: function (year) { return "美国国际生本科申请时间线｜" + year + " Fall"; }
       },
-      {
-        id: "first-round",
-        name: "首轮评审截止",
-        date: "2025-11-26",
-        summary: "这一天中午 12:00（香港时间）前提交的申请，会进入第一轮评审；之后提交改为滚动评审，面试个例安排。",
-        todos: [
-          "在 11 月 26 日中午 12:00（香港时间）前点提交，赶上首轮",
-          "在系统里填入预估成绩或实际成绩，不要只上传扫描件",
-          "核对 3 个专业选择，因为提交后不能再改",
-          "如果赶不上首轮：仍可继续申请，但会按滚动评审，名额可能先被录满"
-        ]
+      hk: {
+        name: "香港",
+        heading: function (year) { return "香港国际生本科申请时间线｜" + year + " Fall"; }
       },
-      {
-        id: "documents",
-        name: "补齐成绩与推荐材料",
-        date: "2025-12-03",
-        summary: "想进首轮评审的同学，预估/实际成绩、推荐信和证明文件建议在这一天前交齐。顾问入口之后仍可上传。",
-        todos: [
-          "提醒升学顾问在 Counsellors’ Portal 填写预估或实际成绩",
-          "提交推荐信和其他证明文件",
-          "若顾问来不及，收到系统邀请后一周内补交",
-          "自己再登录申请账号，确认成绩不是“只上传了文件、系统里却是空的”"
-        ]
+      uk: {
+        name: "英国",
+        heading: function (year) { return "英国国际生本科申请时间线｜" + year + " Entry"; }
       },
-      {
-        id: "first-results",
-        name: "首轮结果开始公布",
-        date: "2025-12-08",
-        summary: "从这一天起陆续发放首轮录取。获录取后一般要在 3–4 周内接受，并缴付不可退还按金。",
-        todos: [
-          "每天查看注册邮箱和申请账号，不要只等短信",
-          "若收到 offer：在信上写的期限内接受，并缴付按金（本地生约 HK$5,000，非本地生约 HK$20,000，以录取信为准）",
-          "非本地生尽早办签证：港大建议评估约 4–6 周，签证约 8–10 周",
-          "若到 2026 年 3 月 31 日仍没有 offer，可视为进入下一轮候补，仍可补交新成绩"
-        ]
-      },
-      {
-        id: "close-2026",
-        name: "申请最终截止",
-        date: "2026-08-21",
-        summary: "2026 入学申请在这一天中午 12:00（香港时间）关闭。PDF 总说明还写：若到 2026 年 9 月初仍无消息，可视为未录取。",
-        todos: [
-          "确认申请已经成功提交，不要拖到中午 12:00 系统维护或卡顿",
-          "把最新成绩、奖项补进系统，滚动评审会继续看",
-          "查收是否还有面试或补件通知",
-          "若到 9 月初仍完全没有消息，按官网总说明可把 2026 入学视为未录取，把精力转到下一学年"
-        ]
-      },
-      {
-        id: "open-2027",
-        name: "2027 入学申请开放",
-        date: "2026-09-23",
-        summary: "招生办页顶公告：International/Non-JUPAS applications for the 2027 intake will be open on September 23, 2026。2027 其余 Important Dates 尚未公布，以官网更新为准。",
-        todos: [
-          "把招生办国际学历页加入收藏，开学后反复核对是否更新了 2027 Important Dates",
-          "提前准备个人陈述、成绩单、推荐人和活动列表，开放当天就能填",
-          "9 月 23 一开放就注册账号，先占住申请节奏",
-          "不要把去年的 11 月 26 日、8 月 21 日直接当成 2027 的截止日，等官网写出新日期再改这条时间线"
-        ]
+      all: {
+        name: "美国 + 香港 + 英国",
+        heading: function (year) { return "美 / 港 / 英 合并申请时间线｜" + year + " 入学季"; }
       }
-    ];
+    };
 
-    const STORAGE_KEY = "hku-timeline-todos-v1";
+    // 模板按 2027 入学写。英美时刻已换成北京时间。
+    const TEMPLATES = {
+      us: [
+        {
+          id: "us-prep",
+          name: "准备标化、活动与文书",
+          start: "2026-05-01",
+          end: "2026-07-31",
+          dateLabel: "2026-05 ～ 2026-07",
+          summary: "准备 SAT/ACT、英语考试、活动、竞赛、科研和文书素材。这是跨月阶段：5 月开始，7 月结束。",
+          todos: [
+            "制定 SAT/ACT 和英语考试的报名、考试、出分计划",
+            "整理活动、竞赛、科研经历，记下能写进申请的细节",
+            "开始积累主文书素材，不要拖到暑假结束"
+          ]
+        },
+        {
+          id: "us-common-app",
+          name: "Common App 开放",
+          start: "2026-08-01T12:00",
+          dateLabel: "北京时间 2026-08-01 12:00",
+          tzNote: "原文：美国东部时间 2026-08-01 00:00 开放",
+          summary: "Common App 开放，开始正式填写美国本科申请。轴上时间是北京时间。",
+          todos: [
+            "注册 Common App 账号并填写个人信息",
+            "列出打算申请的学校，以及走 EA / REA 还是 RD",
+            "把活动列表草稿先填进去"
+          ]
+        },
+        {
+          id: "us-essays",
+          name: "完成文书与申请材料",
+          start: "2026-08-01",
+          end: "2026-10-31",
+          dateLabel: "2026-08 ～ 2026-10",
+          summary: "完成主文书、活动列表、各校补充文书；联系推荐老师；准备成绩单及其他申请材料。",
+          todos: [
+            "写完主文书并反复修改",
+            "完成各校补充文书",
+            "联系推荐老师并确认提交方式",
+            "准备成绩单、语言成绩和其他材料"
+          ]
+        },
+        {
+          id: "us-stanford-arts",
+          name: "Stanford REA Arts Portfolio 截止",
+          start: "2026-10-16T14:59",
+          dateLabel: "北京时间 2026-10-16 14:59",
+          tzNote: "原文：美国太平洋时间 2026-10-15 23:59",
+          summary: "斯坦福 REA 艺术作品集截止。轴上已换成北京时间，比美国当地日期晚一天。",
+          todos: [
+            "若走斯坦福 REA 并提交 Arts Portfolio，在北京时间截止前上传完成",
+            "同时核对作品集格式和学校要求"
+          ]
+        },
+        {
+          id: "us-harvard-mit-ea",
+          name: "Harvard REA / MIT EA 截止",
+          start: "2026-11-02T12:59",
+          dateLabel: "北京时间 2026-11-02 12:59",
+          tzNote: "原文：美国东部时间 2026-11-01 23:59",
+          summary: "哈佛 REA 与 MIT EA 的截止时刻按美国东部 11 月 1 日 23:59 换成北京时间。",
+          todos: [
+            "提交 Harvard REA 或 MIT EA（按你的名单）",
+            "提交前再核对文书、活动列表和推荐信状态"
+          ]
+        },
+        {
+          id: "us-stanford-caltech-rea",
+          name: "Stanford REA / Caltech REA 截止",
+          start: "2026-11-02T15:59",
+          dateLabel: "北京时间 2026-11-02 15:59",
+          tzNote: "原文：美国太平洋时间 2026-11-01 23:59",
+          summary: "斯坦福与加州理工在美国西岸，同样是 11 月 1 日当地截止，换成北京时间比东部学校再晚约 3 小时。",
+          todos: [
+            "提交 Stanford REA 或 Caltech REA（按你的名单）",
+            "不要按「11 月 1 日晚上」北京时间去卡点，那时美国那边已经过了"
+          ]
+        },
+        {
+          id: "us-penn-cornell-ed",
+          name: "Penn / Cornell ED 截止（QS 15、16）",
+          start: "2026-11-02T12:59",
+          dateLabel: "北京时间 2026-11-02 12:59",
+          tzNote: "原文：美国东部时间 2026-11-01 23:59",
+          summary: "QS 2026 第 15、16 名：宾夕法尼亚大学、康奈尔大学 Early Decision。按官网常见 11 月 1 日东部截止换成北京时间。",
+          todos: ["若走 Penn 或 Cornell ED，在北京时间截止前提交", "ED 有约束力，提交前确认这是第一志愿"]
+        },
+        {
+          id: "us-chicago-early",
+          name: "UChicago EA / ED 截止（QS 13）",
+          start: "2026-11-02T13:59",
+          dateLabel: "北京时间 2026-11-02 13:59",
+          tzNote: "原文：美国中部时间 2026-11-01 23:59",
+          summary: "QS 2026 第 13 名芝加哥大学，早申多为 11 月 1 日。芝加哥用中部时间，换成北京时间约 11 月 2 日 13:59。",
+          todos: ["确认走 EA 还是 ED I", "在北京时间截止前提交"]
+        },
+        {
+          id: "us-berkeley-uc",
+          name: "UC Berkeley 申请窗口关闭（QS 17）",
+          start: "2026-12-01T15:59",
+          dateLabel: "北京时间 2026-12-01 15:59",
+          tzNote: "原文：美国太平洋时间 2026-11-30 23:59（UC 申请季通常 11 月 1 日–11 月 30 日）",
+          summary: "QS 2026 并列第 17 名加州大学伯克利分校走 UC 系统，申请窗口一般在 11 月 30 日关闭，已换成北京时间。",
+          todos: ["通过 UC 申请系统提交，不是 Common App", "11 月 1 日窗口一开就填，不要拖到 30 日"]
+        },
+        {
+          id: "us-early-results",
+          name: "早申结果陆续公布",
+          start: "2026-12-10",
+          end: "2026-12-20",
+          mark: "2026-12-15",
+          dateLabel: "2026-12 中旬",
+          summary: "MIT / Stanford / Harvard / Caltech 早申结果陆续公布。出结果不是死截止，轴上按 12 月中旬标。",
+          todos: [
+            "每天查看注册邮箱和申请系统",
+            "若录取：记下确认入学的截止日期",
+            "若未录取或 defer：立刻转去打磨 RD 申请"
+          ]
+        },
+        {
+          id: "us-rd-finish",
+          name: "完成 RD 并提交剩余学校",
+          start: "2026-12-01",
+          end: "2027-01-31",
+          dateLabel: "2026-12 ～ 2027-01",
+          summary: "完成 RD 申请最终版本，提交剩余学校。跨月阶段：12 月开始，1 月结束。",
+          todos: [
+            "根据早申结果调整 RD 学校名单",
+            "完成剩余补文书并提交",
+            "核对各校 RD 截止（已按北京时间标在轴上）"
+          ]
+        },
+        {
+          id: "us-harvard-rd",
+          name: "Harvard RD 申请截止",
+          start: "2027-01-02T12:59",
+          dateLabel: "北京时间 2027-01-02 12:59",
+          tzNote: "原文：美国东部时间 2027-01-01 23:59",
+          summary: "哈佛 RD 截止。美国 1 月 1 日 23:59 东部时间 = 北京时间 1 月 2 日中午。",
+          todos: ["在北京时间截止前完成 Harvard RD 提交"]
+        },
+        {
+          id: "us-mit-ra",
+          name: "MIT RA 申请截止",
+          start: "2027-01-05T12:59",
+          dateLabel: "北京时间 2027-01-05 12:59",
+          tzNote: "原文：美国东部时间 2027-01-04 23:59",
+          summary: "MIT Regular Action 截止，已换成北京时间。",
+          todos: ["在北京时间截止前完成 MIT RA 提交"]
+        },
+        {
+          id: "us-caltech-rd",
+          name: "Caltech RD 申请截止",
+          start: "2027-01-05T15:59",
+          dateLabel: "北京时间 2027-01-05 15:59",
+          tzNote: "原文：美国太平洋时间 2027-01-04 23:59",
+          summary: "加州理工 RD 用太平洋时间，换成北京时间比 MIT 再晚约 3 小时。",
+          todos: ["在北京时间截止前完成 Caltech RD 提交"]
+        },
+        {
+          id: "us-stanford-rd",
+          name: "Stanford RD 申请截止",
+          start: "2027-01-06T15:59",
+          dateLabel: "北京时间 2027-01-06 15:59",
+          tzNote: "原文：美国太平洋时间 2027-01-05 23:59",
+          summary: "斯坦福 RD 截止，已换成北京时间，日期比美国当地晚一天。",
+          todos: ["在北京时间截止前完成 Stanford RD 提交"]
+        },
+        {
+          id: "us-cornell-rd",
+          name: "Cornell RD 申请截止（QS 16）",
+          start: "2027-01-03T12:59",
+          dateLabel: "北京时间 2027-01-03 12:59",
+          tzNote: "原文：美国东部时间 2027-01-02 23:59",
+          summary: "康奈尔常规录取截止，按东部 1 月 2 日换成北京时间。",
+          todos: ["在北京时间截止前完成 Cornell RD 提交"]
+        },
+        {
+          id: "us-penn-rd",
+          name: "Penn RD 申请截止（QS 15）",
+          start: "2027-01-06T12:59",
+          dateLabel: "北京时间 2027-01-06 12:59",
+          tzNote: "原文：美国东部时间 2027-01-05 23:59",
+          summary: "宾夕法尼亚大学常规录取截止，按东部 1 月 5 日换成北京时间。",
+          todos: ["在北京时间截止前完成 Penn RD 提交"]
+        },
+        {
+          id: "us-chicago-rd",
+          name: "UChicago RD 申请截止（QS 13）",
+          start: "2027-01-06T13:59",
+          dateLabel: "北京时间 2027-01-06 13:59",
+          tzNote: "原文：美国中部时间 2027-01-05 23:59",
+          summary: "芝加哥大学常规录取多在 1 月初。按中部 1 月 5 日 23:59 换成北京时间。",
+          todos: ["核对当年官网 RD 截止后，在北京时间前提交"]
+        },
+        {
+          id: "us-midyear",
+          name: "提交 Midyear Report / 期中成绩",
+          start: "2027-02-10",
+          end: "2027-02-20",
+          mark: "2027-02-15",
+          dateLabel: "2027-02 中旬",
+          summary: "部分学校要求提交期中成绩。具体日期以各校系统为准。",
+          todos: [
+            "确认哪些学校要 Midyear Report",
+            "请升学顾问按时提交期中成绩"
+          ]
+        },
+        {
+          id: "us-mit-caltech-rd-results",
+          name: "MIT / Caltech RD 结果公布",
+          start: "2027-03-10",
+          end: "2027-03-20",
+          mark: "2027-03-15",
+          dateLabel: "2027-03 中旬",
+          summary: "MIT 与 Caltech 常规录取结果多在 3 月中旬公布。",
+          todos: ["查收邮箱和申请系统，记下后续确认步骤"]
+        },
+        {
+          id: "us-harvard-rd-results",
+          name: "Harvard RD 结果公布",
+          start: "2027-03-25",
+          end: "2027-03-31",
+          mark: "2027-03-31",
+          dateLabel: "2027-03 月底",
+          summary: "哈佛常规录取结果多在 3 月底公布。",
+          todos: ["查收结果，并对比其他学校的截止日期"]
+        },
+        {
+          id: "us-stanford-rd-results",
+          name: "Stanford RD 结果公布",
+          start: "2027-04-01",
+          end: "2027-04-10",
+          mark: "2027-04-05",
+          dateLabel: "2027-04 月初",
+          summary: "斯坦福常规录取结果多在 4 月初公布。",
+          todos: ["查收结果，开始做最终入学决定"]
+        },
+        {
+          id: "us-decision-day",
+          name: "确认入学学校",
+          start: "2027-05-02T11:59",
+          dateLabel: "北京时间 2027-05-02 11:59",
+          tzNote: "原文：美国东部时间 2027-05-01 23:59（National College Decision Day）",
+          summary: "美国本科录取学生最终确认入学学校。轴上为北京时间。",
+          todos: [
+            "在截止前接受一所学校的录取",
+            "按录取信缴交入学押金",
+            "拒绝其余 offer，避免占位"
+          ]
+        }
+      ],
+      uk: [
+        {
+          id: "uk-ucas-search",
+          name: "UCAS 课程搜索开放",
+          start: "2026-04-28",
+          dateLabel: "2026-04-28",
+          summary: "UCAS 2027 Entry 课程搜索开放，可以开始浏览专业和大学。",
+          todos: ["打开 UCAS 搜索明年入学课程", "记下感兴趣的专业代码和入学考试要求"]
+        },
+        {
+          id: "uk-ucas-form",
+          name: "开始填写 UCAS 申请表",
+          start: "2026-05-12",
+          dateLabel: "2026-05-12",
+          summary: "UCAS 开始填写申请表。",
+          todos: ["创建或登录 UCAS 账号", "先填教育和个人信息"]
+        },
+        {
+          id: "uk-choose",
+          name: "确定专业、大学与文书",
+          start: "2026-05-01",
+          end: "2026-06-30",
+          dateLabel: "2026-05 ～ 2026-06",
+          summary: "确定专业、大学、Personal Statement、推荐人；确认专业是否需要入学考试。",
+          todos: [
+            "把志愿定在最多 5 个选择",
+            "开始写 Personal Statement",
+            "联系推荐人",
+            "查清是否要考 UCAT / ESAT / TMUA / LNAT / UAT-UK"
+          ]
+        },
+        {
+          id: "uk-admissions-tests",
+          name: "报名并参加入学考试",
+          start: "2026-06-01",
+          end: "2026-09-30",
+          dateLabel: "2026-06 ～ 2026-09",
+          summary: "准备并报名 UCAT / ESAT / TMUA / LNAT / UAT-UK 等；医学申请者参加 UCAT。跨月：6 月开始，9 月结束。",
+          todos: [
+            "按专业要求报名对应考试",
+            "医学申请者完成 UCAT",
+            "把考试日期写进日历，避免和 UCAS 提交撞车"
+          ]
+        },
+        {
+          id: "uk-ucas-submit",
+          name: "UCAS 正式开放提交",
+          start: "2026-09-01",
+          dateLabel: "2026-09-01",
+          summary: "UCAS 正式开放提交申请。牛剑和医学仍要赶 10 月提前截止。",
+          todos: ["能提交的话尽早提交", "请推荐人确认推荐信已完成"]
+        },
+        {
+          id: "uk-oxbridge-med",
+          name: "Oxford / Cambridge / Medicine 提前截止",
+          start: "2026-10-16T01:00",
+          dateLabel: "北京时间 2026-10-16 01:00",
+          tzNote: "原文：英国时间 2026-10-15 18:00（BST）",
+          summary: "牛津、剑桥、医学等提前截止。英国 10 月 15 日 18:00 已换成北京时间 10 月 16 日凌晨 1 点。",
+          todos: [
+            "在北京时间 10 月 16 日 01:00 前完成 UCAS 提交",
+            "不要按「15 日晚上 6 点北京时间」去卡点"
+          ]
+        },
+        {
+          id: "uk-esat-tmua",
+          name: "ESAT / TMUA 第一考试季",
+          start: "2026-10-12",
+          end: "2026-10-16",
+          mark: "2026-10-14",
+          dateLabel: "2026-10-12 ～ 2026-10-16",
+          summary: "ESAT / TMUA 第一考试季。具体场次以报名系统为准。",
+          todos: ["核对准考证、考试时间和设备要求", "考完后继续准备面试材料"]
+        },
+        {
+          id: "uk-cambridge-mca",
+          name: "Cambridge My Cambridge Application 截止",
+          start: "2026-10-23T01:00",
+          dateLabel: "北京时间 2026-10-23 01:00",
+          tzNote: "原文：英国时间 2026-10-22 18:00（BST）",
+          summary: "剑桥补充申请截止；国际学生同时提交相关成绩材料。已换成北京时间。",
+          todos: [
+            "完成 My Cambridge Application",
+            "按学院要求上传成绩和材料"
+          ]
+        },
+        {
+          id: "uk-oxford-written",
+          name: "Oxford Written Work 截止",
+          start: "2026-11-10",
+          dateLabel: "2026-11-10",
+          summary: "牛津需要 Written Work 的专业提交书面作业。",
+          todos: ["确认专业是否要求 Written Work", "在截止前提交并留存回执"]
+        },
+        {
+          id: "uk-interview-invite",
+          name: "Oxbridge 发放面试邀请",
+          start: "2026-11-01",
+          end: "2026-11-30",
+          mark: "2026-11-15",
+          dateLabel: "2026-11 月",
+          summary: "牛津、剑桥陆续发放面试邀请。",
+          todos: ["盯紧邮箱（含垃圾邮件箱）", "收到邀请后立刻回复并准备面试"]
+        },
+        {
+          id: "uk-oxbridge-interview",
+          name: "Oxford / Cambridge 面试",
+          start: "2026-12-01",
+          end: "2026-12-21",
+          mark: "2026-12-10",
+          dateLabel: "2026-12 上旬 ～ 中旬",
+          summary: "牛津面试多在 12 月上旬至中旬；剑桥主要面试在 12 月前 3 周。",
+          todos: ["按通知参加面试（线上或到校）", "准备学科样题和近年面试常见问法"]
+        },
+        {
+          id: "uk-oxford-results",
+          name: "Oxford 申请结果公布",
+          start: "2027-01-12",
+          dateLabel: "2027-01-12",
+          summary: "牛津申请结果公布（出结果日，不是截止日）。",
+          todos: ["查收结果", "若获条件录取，记下成绩要求和回复期限"]
+        },
+        {
+          id: "uk-ucas-ecd",
+          name: "UCAS Equal Consideration Deadline",
+          start: "2027-01-14T02:00",
+          dateLabel: "北京时间 2027-01-14 02:00",
+          tzNote: "原文：英国时间 2027-01-13 18:00（GMT）。含 Imperial、UCL 大多数本科专业。",
+          summary: "英国大多数本科专业的平等考虑截止。英国 1 月 13 日 18:00 = 北京时间 1 月 14 日 02:00。",
+          todos: [
+            "在北京时间 1 月 14 日 02:00 前提交 UCAS",
+            "Imperial、UCL 等多数专业也按这个点"
+          ]
+        },
+        {
+          id: "uk-cambridge-results",
+          name: "Cambridge 主轮申请结果公布",
+          start: "2027-01-27",
+          dateLabel: "2027-01-27",
+          summary: "剑桥主轮申请结果公布。",
+          todos: ["查收结果", "把条件录取的考试要求写进复习计划"]
+        },
+        {
+          id: "uk-offers",
+          name: "大学陆续发放 Offer / Rejection",
+          start: "2027-01-01",
+          end: "2027-04-30",
+          dateLabel: "2027-01 ～ 04",
+          summary: "英国大学陆续发放 Offer 或 Rejection。跨月：1 月开始，4 月结束。",
+          todos: [
+            "每封 offer 都记下回复期限",
+            "在 UCAS 里及时回复 Firm / Insurance"
+          ]
+        },
+        {
+          id: "uk-final-exams",
+          name: "A-Level / IB / STEP 等最终考试",
+          start: "2027-05-01",
+          end: "2027-06-30",
+          dateLabel: "2027-05 ～ 06",
+          summary: "最终考试阶段。条件录取能否转正，主要看这次成绩。",
+          todos: ["按条件录取要求安排考试", "STEP 等附加考试也要算进时间表"]
+        },
+        {
+          id: "uk-results-confirm",
+          name: "考试成绩公布、确认最终录取",
+          start: "2027-08-01",
+          end: "2027-08-31",
+          mark: "2027-08-15",
+          dateLabel: "2027-08",
+          summary: "考试成绩公布，大学确认最终录取。",
+          todos: ["出分后立刻核对是否达到条件", "按 UCAS 和学校通知确认入学"]
+        },
+        {
+          id: "uk-enrol",
+          name: "正式入学",
+          start: "2027-09-01",
+          dateLabel: "2027-09",
+          summary: "正式入学。签证、住宿和注册按学校邮件办理。",
+          todos: ["办理学生签证", "确认住宿和注册日期"]
+        }
+      ],
+      hk: [
+        {
+          id: "hk-open",
+          name: "HKU 国际生 / Non-JUPAS 申请开放",
+          start: "2026-09-23",
+          dateLabel: "2026-09-23",
+          summary: "港大招生办已公布：2027 入学国际学历 / Non-JUPAS 申请于 2026 年 9 月 23 日开放。香港时间与北京时间相同。",
+          todos: [
+            "打开港大招生办国际学历申请页，确认走 International / Non-JUPAS，不是内地高考通道",
+            "准备最多 3 个本科专业志愿（提交后不能再改）",
+            "准备申请费港币 600 元（缴交后才算申请成功，不可退还）",
+            "开放当天注册网上申请账号"
+          ]
+        },
+        {
+          id: "hk-account",
+          name: "创建账号并准备 Personal Statement",
+          start: "2026-09-23",
+          end: "2026-10-31",
+          dateLabel: "2026-09 ～ 2026-10",
+          summary: "创建申请账号，确定专业，填写个人信息，准备 Personal Statement。",
+          todos: [
+            "把个人信息和在读课程填上",
+            "确定 3 个专业志愿",
+            "写好 Personal Statement"
+          ]
+        },
+        {
+          id: "hk-materials",
+          name: "准备推荐信、成绩与标化材料",
+          start: "2026-10-01",
+          end: "2026-11-26",
+          dateLabel: "2026-10 ～ 2026-11",
+          summary: "准备并提交推荐信、成绩预测、成绩单、标化成绩及其他申请材料。结束日与预测的首轮截止对齐。",
+          todos: [
+            "请升学顾问准备预估成绩和推荐信",
+            "准备成绩单和语言 / 标化成绩",
+            "在系统里填入成绩，不要只上传扫描件"
+          ]
+        },
+        {
+          id: "hk-first-round",
+          name: "第一轮申请截止",
+          start: "2026-11-26T12:00",
+          dateLabel: "北京时间 2026-11-26 12:00",
+          predicted: true,
+          summary: "预测：按 2026 入学官方首轮截止 11 月 26 日 12:00（香港时间）同日推算。2027 具体日期以官网为准。",
+          todos: [
+            "尽量在中午 12:00 前点提交，赶上首轮",
+            "核对 3 个专业选择，提交后不能再改",
+            "若赶不上首轮：仍可继续申请，但会按滚动评审，名额可能先被录满",
+            "收藏招生办页面，核对是否公布了新的 2027 截止日"
+          ]
+        },
+        {
+          id: "hk-docs",
+          name: "补齐成绩与推荐材料",
+          start: "2026-12-03",
+          dateLabel: "2026-12-03",
+          predicted: true,
+          summary: "预测：按上年 12 月 3 日材料建议日推算。想进首轮的同学，预估/实际成绩、推荐信建议在这天前交齐。",
+          todos: [
+            "提醒升学顾问在 Counsellors’ Portal 填写预估或实际成绩",
+            "提交推荐信和其他证明文件",
+            "若顾问来不及，收到系统邀请后一周内补交"
+          ]
+        },
+        {
+          id: "hk-first-results",
+          name: "首轮结果开始公布",
+          start: "2026-12-08",
+          dateLabel: "2026-12-08",
+          predicted: true,
+          summary: "预测：按上年 12 月 8 日首轮结果开始日推算。获录取后一般要在 3–4 周内接受，并缴付不可退还按金。",
+          todos: [
+            "每天查看注册邮箱和申请账号",
+            "若收到 offer：在信上写的期限内接受并缴按金（金额以录取信为准）",
+            "非本地生尽早办签证：港大建议评估约 4–6 周，签证约 8–10 周"
+          ]
+        },
+        {
+          id: "hk-interview",
+          name: "第一轮面试邀请及面试",
+          start: "2026-12-08",
+          end: "2027-01-31",
+          dateLabel: "2026-12 ～ 2027-01",
+          summary: "第一轮面试邀请及面试。收到 Offer 后按学校规定期限确认并缴纳押金。",
+          todos: [
+            "留意面试邀请邮件",
+            "按通知参加面试",
+            "收到 offer 后在期限内确认并缴押金"
+          ]
+        },
+        {
+          id: "hk-rolling",
+          name: "Rolling Admission 持续审核",
+          start: "2027-01-01",
+          end: "2027-03-31",
+          dateLabel: "2027-01 ～ 2027-03",
+          summary: "滚动评审持续。对照上年官网说明：若到 3 月 31 日仍无 offer，可视为进入后续审核 / 候补。",
+          todos: [
+            "继续补交新成绩和奖项",
+            "不要默认「没消息就是没戏」，滚动会持续一段时间"
+          ]
+        },
+        {
+          id: "hk-waitlist",
+          name: "后续审核 / 候补阶段",
+          start: "2027-03-31",
+          dateLabel: "2027-03-31",
+          predicted: true,
+          summary: "预测节点：对照上年说明，3 月 31 日仍没有 offer，可视为进入下一轮候补，仍可补交新成绩。",
+          todos: [
+            "补交最新成绩",
+            "继续查看系统，不要只等短信"
+          ]
+        },
+        {
+          id: "hk-update",
+          name: "更新终分、补材料与个别面试",
+          start: "2027-04-01",
+          end: "2027-08-21",
+          dateLabel: "2027-04 ～ 2027-08",
+          summary: "持续 Rolling Admission；可以更新最终成绩、补交材料、参加个别专业面试。结束日对齐预测的系统关闭日。",
+          todos: [
+            "出终分后立刻更新系统",
+            "查收是否还有面试或补件通知"
+          ]
+        },
+        {
+          id: "hk-close",
+          name: "申请系统关闭",
+          start: "2027-08-21T12:00",
+          dateLabel: "北京时间 2027-08-21 12:00",
+          predicted: true,
+          summary: "预测：按 2026 入学官方关闭日 8 月 21 日 12:00（香港时间）同日推算。2027 具体关闭日期以官网为准。",
+          todos: [
+            "确认申请已经成功提交，不要拖到中午 12:00",
+            "把最新成绩、奖项补进系统",
+            "若到 9 月初仍完全没有消息，按往年总说明可把该学年视为未录取"
+          ]
+        },
+        {
+          id: "hk-visa",
+          name: "确认录取、办理签证及入学手续",
+          start: "2027-08-21",
+          end: "2027-09-01",
+          dateLabel: "2027-08 ～ 2027-09",
+          summary: "最终确认录取、办理签证及入学手续。",
+          todos: [
+            "确认录取并完成缴费",
+            "办理签证、住宿和注册"
+          ]
+        },
+        {
+          id: "hk-enrol",
+          name: "正式入学",
+          start: "2027-09-01",
+          dateLabel: "2027-09",
+          summary: "正式入学。",
+          todos: ["按学校通知到校注册"]
+        }
+      ]
+    };
+
     const statusText = { done: "已完成", doing: "进行中", todo: "还没到" };
+
+    let profile = null;
+    let region = "hk";
+    let entryYear = 2027;
+    let milestones = [];
+    let selectedMonth = "";
+    let monthList = [];
+    let allDated = [];
+    let dated = [];
+    let openId = "";
+    let introPlayed = false;
+    let syncingScroll = false;
+    let pickedRegion = "";
+    let helpLeadsToSetup = false;
+
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c];
+      });
+    }
 
     function startOfDay(date) {
       return new Date(date.getFullYear(), date.getMonth(), date.getDate());
     }
+    function endOfDay(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+    }
     function parseDate(iso) {
-      const [y, m, d] = iso.split("-").map(Number);
-      return new Date(y, m - 1, d);
+      if (!iso) return new Date(NaN);
+      if (iso.indexOf("T") !== -1) {
+        const parts = iso.split("T");
+        const d = parts[0].split("-").map(Number);
+        const t = parts[1].split(":").map(Number);
+        return new Date(d[0], d[1] - 1, d[2], t[0] || 0, t[1] || 0);
+      }
+      const p = iso.split("-").map(Number);
+      return new Date(p[0], p[1] - 1, p[2]);
     }
     function formatDate(iso) {
-      const [y, m, d] = iso.split("-");
-      return y + "年" + Number(m) + "月" + Number(d) + "日";
+      const day = iso.slice(0, 10);
+      const p = day.split("-");
+      return p[0] + "年" + Number(p[1]) + "月" + Number(p[2]) + "日";
+    }
+    function formatDateTime(iso) {
+      if (iso.indexOf("T") !== -1) {
+        const parts = iso.split("T");
+        const hm = parts[1].split(":");
+        return formatDate(parts[0]) + " " + hm[0] + ":" + hm[1] + "（北京时间）";
+      }
+      return formatDate(iso);
     }
     function todayIso(today) {
       return today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
-    }
-
-    // 按日期排好；第一个未过期 = 进行中
-    function attachStatus(list, today) {
-      const sorted = list.slice().sort(function (a, b) {
-        return parseDate(a.date) - parseDate(b.date);
-      });
-      let currentId = null;
-      for (let i = 0; i < sorted.length; i++) {
-        if (parseDate(sorted[i].date) >= today) {
-          currentId = sorted[i].id;
-          break;
-        }
-      }
-      const currentDate = currentId
-        ? parseDate(sorted.find(function (m) { return m.id === currentId; }).date)
-        : null;
-      return sorted.map(function (item) {
-        const d = parseDate(item.date);
-        let status = "done";
-        if (currentId && item.id === currentId) status = "doing";
-        else if (currentDate && d > currentDate) status = "todo";
-        return Object.assign({}, item, { status: status });
-      });
-    }
-
-    // 今天落在两个节点之间时，按日期比例插值
-    function todayAxisPercent(list, today) {
-      const n = list.length;
-      if (n < 2) return 0;
-      const times = list.map(function (m) { return parseDate(m.date).getTime(); });
-      const t = today.getTime();
-      if (t <= times[0]) return 0;
-      if (t >= times[n - 1]) return 100;
-      let i = 0;
-      while (i < n - 1 && t > times[i + 1]) i++;
-      const span = times[i + 1] - times[i];
-      const local = span === 0 ? 0 : (t - times[i]) / span;
-      return ((i + local) / (n - 1)) * 100;
-    }
-
-    function loadChecks() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
-      catch (e) { return {}; }
-    }
-    function saveChecks(data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
-
-    let selectedMonth = "";
-    let dated = [];
-    let openId = milestones[0].id;
-    let introPlayed = false;
-    let pinReady = false;
-
-    function getToday() {
-      return startOfDay(new Date());
     }
     function monthKey(iso) {
       return iso.slice(0, 7);
@@ -716,55 +1771,374 @@
       const parts = ym.split("-");
       return parts[0] + "年" + Number(parts[1]) + "月";
     }
-    // 数据里出现过的月份，当作申请月（如 8、9、11、12）
-    function applicationMonthNumbers() {
-      const set = {};
-      milestones.forEach(function (m) {
-        set[Number(m.date.slice(5, 7))] = true;
-      });
-      return Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
+    function shiftIso(iso, delta) {
+      if (!iso || !delta) return iso;
+      return iso.replace(/^(\d{4})/, function (_, y) { return String(Number(y) + delta); });
     }
-    // 本月全部已过 → 标记在最后节点之后；本月全是未来 → 标记在第一节点之前；有过有未过 → 插在中间
-    function todaySlotWhere(nodes, today) {
-      if (!nodes.length) {
-        const parts = selectedMonth.split("-").map(Number);
-        const selectedStart = new Date(parts[0], parts[1] - 1, 1);
-        const currentStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        return selectedStart > currentStart ? "before" : "after";
+    function shiftYearInText(text, delta) {
+      if (!text || !delta) return text;
+      return String(text).replace(/20\d{2}/g, function (y) { return String(Number(y) + delta); });
+    }
+    function entryYearFromAge(age) {
+      return 2027 + Math.max(0, 17 - Number(age));
+    }
+    function storageKey() {
+      return "applytimeline-todos-v2-" + entryYear;
+    }
+    function api(method, path, body) {
+      const opts = {
+        method: method,
+        credentials: "same-origin",
+        headers: {}
+      };
+      if (body !== undefined) {
+        opts.headers["Content-Type"] = "application/json";
+        opts.body = JSON.stringify(body);
       }
-      const pastCount = nodes.filter(function (n) { return parseDate(n.date) < today; }).length;
-      if (pastCount === nodes.length) return "after";
-      if (pastCount === 0) return "before";
-      return "between:" + (pastCount - 1);
+      return fetch(path, opts).then(function (res) {
+        if (!res.ok) throw new Error("api " + res.status);
+        return res.json();
+      });
     }
+    function applyOfficialDates(data) {
+      if (!data || !data.patches) return;
+      datesMeta = data;
+      const outlineById = {
+        "hk-open": function (start) { OUTLINES.hk.items[0].when = start.slice(0, 10); },
+        "hk-first-round": function (start) { OUTLINES.hk.items[3].when = start.replace("T", " ").slice(0, 16) + "（北京时间，预测）"; },
+        "hk-close": function (start) { OUTLINES.hk.items[8].when = start.replace("T", " ").slice(0, 16) + "（北京时间，预测）"; },
+        "uk-ucas-search": function (start) { OUTLINES.uk.items[0].when = start.slice(0, 10); },
+        "uk-ucas-form": function (start) { OUTLINES.uk.items[1].when = start.slice(0, 10); },
+        "uk-ucas-submit": function (start) { OUTLINES.uk.items[5].when = start.slice(0, 10); }
+      };
+      data.patches.forEach(function (p) {
+        if (!p || !p.id) return;
+        Object.keys(TEMPLATES).forEach(function (rid) {
+          TEMPLATES[rid].forEach(function (item) {
+            if (item.id !== p.id) return;
+            if (p.start) {
+              const wasPoint = !item.end;
+              item.start = p.start;
+              if (wasPoint) item.end = p.start;
+            }
+            if (p.end) item.end = p.end;
+            if (p.mark) item.mark = p.mark;
+            if (p.dateLabel) item.dateLabel = p.dateLabel;
+            if (typeof p.predicted === "boolean") item.predicted = p.predicted;
+          });
+        });
+        if (p.start && outlineById[p.id]) outlineById[p.id](p.start);
+      });
+    }
+    function loadChecks() {
+      if (useBackend) {
+        return Object.assign({}, memoryTodosByYear[String(entryYear)] || {});
+      }
+      try {
+        const merged = JSON.parse(localStorage.getItem(storageKey())) || {};
+        ["us", "hk", "uk", "all"].forEach(function (rid) {
+          try {
+            const old = JSON.parse(localStorage.getItem("applytimeline-todos-v2-" + rid + "-" + entryYear) || "null");
+            if (!old) return;
+            Object.keys(old).forEach(function (k) {
+              if (!merged[k]) merged[k] = old[k];
+            });
+          } catch (err) {}
+        });
+        return merged;
+      }
+      catch (e) { return {}; }
+    }
+    function todoKey(item) {
+      if (item && (item.role === "start" || item.role === "end") && item.rangeId) return item.rangeId;
+      return item.id;
+    }
+    function loadItemChecks(item) {
+      const all = loadChecks();
+      const key = todoKey(item);
+      const saved = Object.assign({}, all[key] || {});
+      if (item.role === "start" || item.role === "end") {
+        const leftovers = [all[item.rangeId + "-start"], all[item.rangeId + "-end"]];
+        leftovers.forEach(function (obj) {
+          if (!obj) return;
+          Object.keys(obj).forEach(function (k) {
+            if (obj[k]) saved[k] = true;
+          });
+        });
+      }
+      return saved;
+    }
+
+    function isSpanning(item) {
+      return item.rangeStart && item.rangeEnd && item.rangeStart.slice(0, 10) !== item.rangeEnd.slice(0, 10);
+    }
+
+    function rangeStartMoment(iso) {
+      return iso.indexOf("T") !== -1 ? parseDate(iso) : startOfDay(parseDate(iso));
+    }
+    function rangeEndMoment(iso) {
+      return iso.indexOf("T") !== -1 ? parseDate(iso) : endOfDay(parseDate(iso));
+    }
+    function inRange(today, startIso, endIso) {
+      const t = today.getTime();
+      return t >= rangeStartMoment(startIso).getTime() && t <= rangeEndMoment(endIso).getTime();
+    }
+
+    function monthsBetween(startIso, endIso) {
+      const out = [];
+      const s = parseDate(startIso);
+      const e = parseDate(endIso);
+      const cur = new Date(s.getFullYear(), s.getMonth(), 1);
+      const last = new Date(e.getFullYear(), e.getMonth(), 1);
+      while (cur <= last) {
+        out.push(cur.getFullYear() + "-" + String(cur.getMonth() + 1).padStart(2, "0"));
+        cur.setMonth(cur.getMonth() + 1);
+      }
+      return out;
+    }
+
+    function buildMilestones(regionId, year) {
+      const delta = year - 2027;
+      const ids = regionId === "all" ? ["us", "uk", "hk"] : [regionId];
+      const out = [];
+      ids.forEach(function (rid) {
+        const tpl = TEMPLATES[rid] || [];
+        const regionName = REGION_META[rid] ? REGION_META[rid].name : rid;
+        tpl.forEach(function (item) {
+          const start = shiftIso(item.start, delta);
+          const end = shiftIso(item.end || item.start, delta);
+          const mark = shiftIso(item.mark || item.start, delta);
+          const shared = {
+            rangeId: item.id,
+            rangeStart: start,
+            rangeEnd: end,
+            dateLabel: shiftYearInText(item.dateLabel || "", delta),
+            tzNote: shiftYearInText(item.tzNote || "", delta),
+            summary: shiftYearInText(item.summary, delta),
+            todos: (item.todos || []).map(function (t) { return shiftYearInText(t, delta); }),
+            predicted: !!item.predicted,
+            phaseName: item.name,
+            regionId: rid,
+            regionName: regionName
+          };
+          if (start.slice(0, 7) !== end.slice(0, 7)) {
+            out.push(Object.assign({}, shared, {
+              id: item.id + "-start",
+              name: item.name + " · 开始",
+              date: start,
+              role: "start"
+            }));
+            out.push(Object.assign({}, shared, {
+              id: item.id + "-end",
+              name: item.name + " · 结束",
+              date: end,
+              role: "end"
+            }));
+          } else {
+            const sameDay = start.slice(0, 10) === end.slice(0, 10);
+            out.push(Object.assign({}, shared, {
+              id: item.id,
+              name: item.name,
+              date: mark,
+              role: sameDay ? "point" : "span"
+            }));
+          }
+        });
+      });
+      return out;
+    }
+
+    function attachStatus(list, today) {
+      const sorted = list.slice().sort(function (a, b) {
+        const dt = parseDate(a.date) - parseDate(b.date);
+        if (dt !== 0) return dt;
+        return a.id < b.id ? -1 : 1;
+      });
+      let currentPointId = null;
+      for (let i = 0; i < sorted.length; i++) {
+        if (!isSpanning(sorted[i]) && startOfDay(parseDate(sorted[i].date)) >= today) {
+          currentPointId = sorted[i].id;
+          break;
+        }
+      }
+      const rankStatus = { doing: 0, todo: 1, done: 2 };
+      const rankRole = { point: 0, start: 1, span: 2, end: 3 };
+      const withStatus = sorted.map(function (item) {
+        let status = "todo";
+        if (isSpanning(item)) {
+          if (inRange(today, item.rangeStart, item.rangeEnd)) status = "doing";
+          else if (today.getTime() > rangeEndMoment(item.rangeEnd).getTime()) status = "done";
+          else status = "todo";
+        } else {
+          const d = startOfDay(parseDate(item.date));
+          if (d < today) status = "done";
+          else if (item.id === currentPointId || d.getTime() === today.getTime()) status = "doing";
+          else status = "todo";
+        }
+        return Object.assign({}, item, { status: status });
+      });
+      withStatus.sort(function (a, b) {
+        const dt = parseDate(a.date) - parseDate(b.date);
+        if (dt !== 0) return dt;
+        const rs = (rankStatus[a.status] || 9) - (rankStatus[b.status] || 9);
+        if (rs !== 0) return rs;
+        const rr = (rankRole[a.role] || 9) - (rankRole[b.role] || 9);
+        if (rr !== 0) return rr;
+        return a.id < b.id ? -1 : 1;
+      });
+      return withStatus;
+    }
+
+    function uniquePhases(list) {
+      const seen = {};
+      const phases = [];
+      list.forEach(function (m) {
+        if (!m.rangeId || seen[m.rangeId]) return;
+        seen[m.rangeId] = true;
+        phases.push(m);
+      });
+      return phases;
+    }
+
+    function phaseLabel(m) {
+      return (m.regionName ? m.regionName + " · " : "") + m.phaseName;
+    }
+
+    function activePhase(list, today) {
+      const phases = uniquePhases(list).filter(function (m) {
+        return isSpanning(m) && inRange(today, m.rangeStart, m.rangeEnd);
+      });
+      phases.sort(function (a, b) {
+        return (rangeEndMoment(a.rangeEnd) - rangeStartMoment(a.rangeStart)) - (rangeEndMoment(b.rangeEnd) - rangeStartMoment(b.rangeStart));
+      });
+      return phases[0] || null;
+    }
+
+    function coveringPhaseForMonth(ym) {
+      const phases = uniquePhases(milestones).filter(function (m) {
+        if (!isSpanning(m)) return false;
+        const months = monthsBetween(m.rangeStart, m.rangeEnd);
+        return months.indexOf(ym) !== -1;
+      });
+      phases.sort(function (a, b) {
+        return (rangeEndMoment(a.rangeEnd) - rangeStartMoment(a.rangeStart)) - (rangeEndMoment(b.rangeEnd) - rangeStartMoment(b.rangeStart));
+      });
+      return phases[0] || null;
+    }
+
+    function saveChecks(data) {
+      try { localStorage.setItem(storageKey(), JSON.stringify(data)); } catch (e) {}
+      if (useBackend) {
+        memoryTodosByYear[String(entryYear)] = data;
+        api("PUT", "/api/todos", { entryYear: entryYear, checks: data }).catch(function () {});
+      }
+    }
+    function loadProfile() {
+      if (useBackend && memoryProfile) return memoryProfile;
+      try { return JSON.parse(localStorage.getItem(PROFILE_KEY)); }
+      catch (e) { return null; }
+    }
+    function saveProfile(data) {
+      memoryProfile = data;
+      try { localStorage.setItem(PROFILE_KEY, JSON.stringify(data)); } catch (e) {}
+      if (useBackend) {
+        api("PUT", "/api/profile", data).catch(function () {});
+      }
+    }
+
+    function getToday() {
+      return startOfDay(new Date());
+    }
+
+    function dateKey(iso) {
+      return String(iso || "").slice(0, 10);
+    }
+
+    function daysInMonth(ym) {
+      const p = String(ym).split("-").map(Number);
+      return new Date(p[0], p[1], 0).getDate();
+    }
+
+    function dayPercent(iso) {
+      const key = dateKey(iso);
+      const p = key.split("-").map(Number);
+      const days = new Date(p[0], p[1], 0).getDate();
+      const day = p[2] || 1;
+      return ((day - 0.5) / days) * 100;
+    }
+
+    function groupStatus(items) {
+      if (items.some(function (m) { return m.status === "doing"; })) return "doing";
+      if (items.some(function (m) { return m.status === "todo"; })) return "todo";
+      return "done";
+    }
+
+    function groupDays(list) {
+      const map = {};
+      const order = [];
+      list.forEach(function (m) {
+        const key = dateKey(m.date);
+        if (!map[key]) {
+          map[key] = [];
+          order.push(key);
+        }
+        map[key].push(m);
+      });
+      return order.map(function (key) {
+        const items = map[key];
+        return {
+          id: "day-" + key,
+          date: key,
+          items: items,
+          status: groupStatus(items)
+        };
+      });
+    }
+
+    function groupsForMonth(ym) {
+      return groupDays(allDated.filter(function (m) { return monthKey(m.date) === ym; }));
+    }
+
     function applyDateState(keepSelection) {
       const today = getToday();
-      const allDated = attachStatus(milestones, today);
-      dated = allDated.filter(function (m) { return monthKey(m.date) === selectedMonth; });
+      allDated = attachStatus(milestones, today);
+      dated = groupsForMonth(selectedMonth);
       if (!dated.length) {
         openId = "";
         return;
       }
-      if (!keepSelection || !dated.some(function (m) { return m.id === openId; })) {
-        const current = dated.find(function (m) { return m.status === "doing"; });
+      const match = dated.find(function (g) {
+        return g.id === openId || g.items.some(function (m) { return m.id === openId; });
+      });
+      if (!keepSelection || !match) {
+        const current = dated.find(function (g) { return g.status === "doing"; });
         openId = (current || dated[0]).id;
+      } else {
+        openId = match.id;
       }
     }
 
     function fillSimSelect() {
       const select = document.getElementById("simMonth");
-      const year0 = new Date().getFullYear();
-      const months = applicationMonthNumbers();
-      let html = "";
-      for (let y = year0; y <= year0 + 2; y++) {
-        months.forEach(function (mo) {
-          const value = y + "-" + String(mo).padStart(2, "0");
-          html += "<option value=\"" + value + "\">" + y + "年" + mo + "月</option>";
+      const set = {};
+      milestones.forEach(function (m) {
+        monthsBetween(m.rangeStart || m.date, m.rangeEnd || m.date).forEach(function (ym) {
+          set[ym] = true;
         });
+        set[monthKey(m.date)] = true;
+      });
+      const values = Object.keys(set).sort();
+      monthList = values;
+      select.innerHTML = values.map(function (ym) {
+        const p = ym.split("-");
+        return "<option value=\"" + ym + "\">" + p[0] + "年" + Number(p[1]) + "月</option>";
+      }).join("");
+      if (!values.length) {
+        selectedMonth = "";
+        return;
       }
-      select.innerHTML = html;
-      const nowKey = year0 + "-" + String(new Date().getMonth() + 1).padStart(2, "0");
-      const values = Array.prototype.map.call(select.options, function (o) { return o.value; });
+      const now = new Date();
+      const nowKey = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0");
       if (values.indexOf(nowKey) !== -1) select.value = nowKey;
       else {
         const next = values.filter(function (v) { return v >= nowKey; })[0];
@@ -773,146 +2147,600 @@
       selectedMonth = select.value;
     }
 
+    function renderSubtitle() {
+      const meta = REGION_META[region];
+      const heading = meta.heading(entryYear);
+      document.getElementById("subtitle").textContent =
+        heading + "。轴上日期是北京时间。状态会拿「今天」和每个日期自动比较。" +
+        (datesMeta && datesMeta.fetchedAt
+          ? " 时间节点已对照港大招生办、UCAS 及 QS 11–20 美英港学校官网刷新（" + datesMeta.fetchedAt.slice(0, 16).replace("T", " ") + " UTC）。"
+          : " 时间节点按港大招生办、UCAS 及 QS 11–20 美英港学校近年官网日期整理；连上后端后会自动刷新。");
+    }
+
+    const OUTLINES = {
+      us: {
+        title: "美国国际生本科申请时间线｜{year} Fall",
+        items: [
+          { when: "2026-05 ～ 2026-07", what: "准备 SAT/ACT、英语考试、活动、竞赛、科研、文书等" },
+          { when: "2026-08-01", what: "Common App 开放；开始正式填写美国本科申请" },
+          { when: "2026-08 ～ 2026-10", what: "完成主文书、活动列表、各校补充文书；联系推荐老师；准备成绩单及其他申请材料" },
+          { when: "2026-10-15", what: "Stanford REA Arts Portfolio 截止" },
+          { when: "2026-11-01", what: "MIT EA、Stanford REA、Harvard REA、Caltech REA、Penn ED、Cornell ED、UChicago EA/ED 截止（当地日期；轴上已换成北京时间次日）" },
+          { when: "2026-11-30", what: "UC Berkeley（QS 17）UC 申请窗口关闭" },
+          { when: "2026-12 中旬", what: "MIT / Stanford / Harvard / Caltech 早申结果陆续公布" },
+          { when: "2026-12 ～ 2027-01", what: "完成 RD 申请最终版本，提交剩余学校申请" },
+          { when: "2027-01-01", what: "Harvard RD 申请截止" },
+          { when: "2027-01-02", what: "Cornell RD 申请截止" },
+          { when: "2027-01-04", what: "MIT RA 申请截止；Caltech RD 申请截止" },
+          { when: "2027-01-05", what: "Stanford RD、Penn RD、UChicago RD 申请截止" },
+          { when: "2027-02 中旬", what: "部分学校提交 Midyear Report / 期中成绩" },
+          { when: "2027-03 中旬", what: "MIT / Caltech RD 结果公布" },
+          { when: "2027-03 月底", what: "Harvard RD 结果公布" },
+          { when: "2027-04 月初", what: "Stanford RD 结果公布" },
+          { when: "2027-05-01", what: "美国本科录取学生最终确认入学学校" }
+        ]
+      },
+      uk: {
+        title: "英国国际生本科申请时间线｜{year} Entry",
+        items: [
+          { when: "2026-04-28", what: "UCAS 2027 Entry 课程搜索开放" },
+          { when: "2026-05-12", what: "UCAS 开始填写申请表" },
+          { when: "2026-05 ～ 2026-06", what: "确定专业、大学、Personal Statement、推荐人；确认专业是否需要入学考试" },
+          { when: "2026-06 ～ 2026-09", what: "准备并报名 UCAT / ESAT / TMUA / LNAT / UAT-UK 等相关考试" },
+          { when: "2026-07 ～ 2026-09", what: "参加适用的入学考试；医学申请者参加 UCAT" },
+          { when: "2026-09-01", what: "UCAS 正式开放提交申请" },
+          { when: "2026-10-16 01:00（北京时间）", what: "Oxford / Cambridge / Medicine 等提前截止" },
+          { when: "2026-10-12 ～ 2026-10-16", what: "ESAT / TMUA 第一考试季" },
+          { when: "2026-10-23 01:00（北京时间）", what: "Cambridge My Cambridge Application 截止；国际学生提交相关成绩材料" },
+          { when: "2026-11-10", what: "Oxford 需要 Written Work 的专业提交书面作业" },
+          { when: "2026-11 月", what: "Oxford / Cambridge 陆续发放面试邀请" },
+          { when: "2026-12 上旬 ～ 中旬", what: "Oxford 面试" },
+          { when: "2026-12 月前 3 周", what: "Cambridge 主要面试阶段" },
+          { when: "2027-01-12", what: "Oxford 申请结果公布" },
+          { when: "2027-01-14 02:00（北京时间）", what: "英国大多数本科专业 UCAS Equal Consideration Deadline，包括 Imperial、UCL 大多数本科专业" },
+          { when: "2027-01-27", what: "Cambridge 主轮申请结果公布" },
+          { when: "2027-01 ～ 04", what: "英国大学陆续发放 Offer / Rejection" },
+          { when: "2027-05 ～ 06", what: "A-Level / IB / STEP 等最终考试" },
+          { when: "2027-08", what: "考试成绩公布、确认最终录取" },
+          { when: "2027-09", what: "正式入学" }
+        ]
+      },
+      hk: {
+        title: "香港国际生本科申请时间线｜{year} Fall",
+        items: [
+          { when: "2026-09-23", what: "HKU 国际生 / Non-JUPAS 申请开放" },
+          { when: "2026-09 ～ 2026-10", what: "创建申请账号；确定专业；填写个人信息；准备 Personal Statement" },
+          { when: "2026-10 ～ 2026-11", what: "准备并提交推荐信、成绩预测、成绩单、标化成绩及其他申请材料" },
+          { when: "2026-11-26 12:00（北京时间，预测）", what: "HKU 第一轮申请截止。按官网 2026 入学 11 月 26 日 12:00 同日推算，以当年公布为准" },
+          { when: "2026-12-03（预测）", what: "想进首轮的同学，建议在这天前交齐成绩与推荐材料（对照官网上年 12 月 3 日）" },
+          { when: "2026-12-08（预测）", what: "首轮结果开始公布（对照官网上年 12 月 8 日）" },
+          { when: "2026-12 ～ 2027-01", what: "第一轮面试邀请及面试" },
+          { when: "2026-12 起", what: "第一轮 Offer 陆续发放；收到 Offer 后按学校规定期限确认并缴纳押金" },
+          { when: "2027-01 ～ 2027-03", what: "Rolling Admission 持续审核" },
+          { when: "2027-03-31（预测）", what: "若仍未获录取，对照官网说明可视为进入后续审核 / 候补" },
+          { when: "2027-04 ～ 2027-08", what: "持续 Rolling Admission；可以更新最终成绩、补交材料、参加个别专业面试" },
+          { when: "2027-08-21 12:00（北京时间，预测）", what: "HKU 国际生申请系统关闭。按官网 2026 入学 8 月 21 日 12:00 同日推算" },
+          { when: "2027-08 ～ 2027-09", what: "最终确认录取、办理签证及入学手续" },
+          { when: "2027-09", what: "正式入学" }
+        ]
+      }
+    };
+
+    function renderSources() {
+      const box = document.getElementById("sources");
+      const ids = region === "all" ? ["us", "uk", "hk"] : [region];
+      const delta = entryYear - 2027;
+      box.innerHTML = ids.map(function (rid) {
+        const data = OUTLINES[rid];
+        if (!data) return "";
+        const title = data.title.replace("{year}", String(entryYear));
+        const items = data.items.map(function (item) {
+          const when = shiftYearInText(item.when, delta);
+          const what = shiftYearInText(item.what, delta);
+          return "<div class=\"outline-item\"><div class=\"when\">" + esc(when) + "</div><p>" + esc(what) + "</p></div>";
+        }).join("");
+        return "<h3>" + esc(title) + "</h3>" + items;
+      }).join("");
+    }
+
     function renderBanner() {
       const today = getToday();
       const el = document.getElementById("todayBanner");
       const todayLabel = formatDate(todayIso(today));
-      const where = todaySlotWhere(dated, today);
-      let hint = "「今天」标在本月最后一个节点之后";
-      if (String(where).indexOf("before") === 0) hint = "「今天」标在本月第一个节点之前";
-      else if (String(where).indexOf("between") === 0) hint = "「今天」标在已过节点和未到节点之间";
+      const phase = activePhase(milestones, today);
+      const todayThisMonth = monthKey(todayIso(today)) === selectedMonth;
+      const todayDay = today.getDate();
+      let hint = "这个月已经过完，「今天」标在轴的最右边";
+      if (todayThisMonth) {
+        hint = phase
+          ? "今天正在「" + phaseLabel(phase) + "」阶段（" + phase.dateLabel + "）。玫红标记落在本月 " + todayDay + " 日附近。"
+          : "「今天」标在本月日历约 " + todayDay + " 日的位置";
+      } else if (monthKey(todayIso(today)) < selectedMonth) {
+        hint = "这个月还没到，「今天」标在轴的最左边";
+      }
+      const regionName = REGION_META[region].name;
+      const taskCount = dated.reduce(function (n, g) { return n + g.items.length; }, 0);
       if (!dated.length) {
-        el.innerHTML = "<span class=\"chip\">今天 " + todayLabel + "</span><strong>正在看 " + formatMonth(selectedMonth) + "</strong><span>这个月还没有申请节点</span>";
+        el.innerHTML = "<span class=\"chip\">今天 " + esc(todayLabel) + "</span><strong>正在看 " + esc(formatMonth(selectedMonth)) + " · " + esc(regionName) + "</strong><span>" + esc(hint) + "</span>";
         return;
       }
-      el.innerHTML = "<span class=\"chip\">今天 " + todayLabel + "</span><strong>正在看 " + formatMonth(selectedMonth) + " · " + dated.length + " 个节点</strong><span>" + hint + "</span>";
+      el.innerHTML = "<span class=\"chip\">今天 " + esc(todayLabel) + "</span><strong>正在看 " + esc(formatMonth(selectedMonth)) + " · " + dated.length + " 个日期、" + taskCount + " 个任务</strong><span>" + esc(hint) + "</span>";
     }
 
-    function paintProgress() {
-      const axis = document.querySelector(".axis");
-      const pin = document.getElementById("todayPin");
-      const wrap = document.getElementById("trackWrap");
-      if (!axis || !pin || !wrap) return;
-      const axisRect = axis.getBoundingClientRect();
-      const wrapRect = wrap.getBoundingClientRect();
-      const pinX = parseFloat(pin.style.left) || 0;
-      const pinY = parseFloat(pin.style.top) || 0;
-      const mobile = window.matchMedia("(max-width: 768px)").matches;
-      let percent = 0;
-      if (mobile) {
-        const span = axisRect.height || 1;
-        percent = ((wrapRect.top + pinY) - axisRect.top) / span * 100;
+    function renderPhaseNote() {
+      const note = document.getElementById("phaseNote");
+      const today = getToday();
+      const phase = activePhase(milestones, today);
+      const todayThisMonth = monthKey(todayIso(today)) === selectedMonth;
+      const monthPhase = coveringPhaseForMonth(selectedMonth);
+      if (phase && todayThisMonth) {
+        note.hidden = false;
+        note.textContent = "今天在这：你正处于「" + phaseLabel(phase) + "」（" + phase.dateLabel + "）。";
+        return;
+      }
+      if (!dated.length && monthPhase) {
+        note.hidden = false;
+        note.textContent = "本月没有新的截止点，但「" + phaseLabel(monthPhase) + "」还在进行（" + monthPhase.dateLabel + "）。";
+        return;
+      }
+      note.hidden = true;
+      note.textContent = "";
+    }
+
+    function nodeClass(g) {
+      return "node " + g.status + (g.id === openId ? " open" : "");
+    }
+
+    function formatDayShort(iso) {
+      const p = dateKey(iso).split("-");
+      return Number(p[2]) + "日";
+    }
+
+    function isTickDay(iso) {
+      const p = dateKey(iso).split("-").map(Number);
+      const days = new Date(p[0], p[1], 0).getDate();
+      const day = p[2];
+      const mid = Math.round(days / 2);
+      return day === 1 || day === mid || day === days;
+    }
+
+    function nodeEdgeClass(percent) {
+      if (percent < 12) return " near-start";
+      if (percent > 88) return " near-end";
+      return "";
+    }
+
+    function todayPinHtml(ym) {
+      const today = getToday();
+      const todayKey = monthKey(todayIso(today));
+      let x;
+      let extra = "";
+      if (ym === todayKey) {
+        x = dayPercent(todayIso(today));
+        extra = x < 16 ? " at-start" : (x > 84 ? " at-end" : "");
+      } else if (ym > todayKey) {
+        x = 0;
+        extra = " at-start";
       } else {
-        const span = axisRect.width || 1;
-        percent = ((wrapRect.left + pinX) - axisRect.left) / span * 100;
+        x = 100;
+        extra = " at-end";
       }
-      axis.style.setProperty("--progress", Math.max(0, Math.min(100, percent)) + "%");
+      return (
+        "<div class=\"today-pin show" + extra + "\" style=\"--x:" + x + "%\">" +
+          "<span class=\"today-label\">📍 今天</span>" +
+          "<i class=\"today-stem\" aria-hidden=\"true\"></i>" +
+        "</div>"
+      );
     }
 
-    // 「今天」对准占位槽中心；y 在桌面对准横线
-    function placeTodayPin() {
-      const pin = document.getElementById("todayPin");
-      const wrap = document.getElementById("trackWrap");
-      const axis = document.querySelector(".axis");
-      const slot = document.getElementById("todaySlot");
-      if (!axis || !slot) return;
-      const wrapRect = wrap.getBoundingClientRect();
-      const axisRect = axis.getBoundingClientRect();
-      const slotRect = slot.getBoundingClientRect();
-      const x = slotRect.left + slotRect.width / 2 - wrapRect.left;
-      const yMobile = slotRect.top + slotRect.height / 2 - wrapRect.top;
-      const yDesktop = axisRect.top + axisRect.height / 2 - wrapRect.top;
-      const mobile = window.matchMedia("(max-width: 768px)").matches;
-      pin.style.left = x + "px";
-      pin.style.top = (mobile ? yMobile : yDesktop) + "px";
-      pin.classList.add("show");
-      paintProgress();
-      if (!pinReady) {
-        requestAnimationFrame(function () {
-          pin.classList.add("ready");
-          pinReady = true;
-        });
+    function captionBlockHeight(g) {
+      const dateH = isTickDay(g.date) ? 0 : 18;
+      const n = Math.max(1, g.items.length);
+      if (n === 1) return dateH + 56;
+      return dateH + n * 50;
+    }
+
+    function captionRailWidth() {
+      const scroller = document.getElementById("trackScroller");
+      const w = scroller && scroller.clientWidth ? scroller.clientWidth : 720;
+      return Math.max(240, w - 72);
+    }
+
+    function captionDropLevels(groups) {
+      const railW = captionRailWidth();
+      const capPx = 150;
+      const gap = 12;
+      const placed = [];
+      const drops = [];
+      groups.forEach(function (g) {
+        const pct = dayPercent(g.date);
+        const x = railW * pct / 100;
+        let left;
+        let right;
+        if (pct < 12) {
+          left = x;
+          right = x + capPx;
+        } else if (pct > 88) {
+          left = x - capPx;
+          right = x;
+        } else {
+          left = x - capPx / 2;
+          right = x + capPx / 2;
+        }
+        const h = captionBlockHeight(g);
+        let top = 0;
+        let hit = true;
+        let guard = 0;
+        while (hit && guard < 24) {
+          hit = false;
+          guard += 1;
+          const bottom = top + h;
+          for (let j = 0; j < placed.length; j++) {
+            const p = placed[j];
+            const xHit = left < p.right && right > p.left;
+            const yHit = top < p.bottom && bottom > p.top;
+            if (xHit && yHit) {
+              top = p.bottom + gap;
+              hit = true;
+              break;
+            }
+          }
+        }
+        drops.push(top);
+        placed.push({ left: left, right: right, top: top, bottom: top + h });
+      });
+      return drops;
+    }
+
+    function groupCaptionHtml(g) {
+      const showDay = !isTickDay(g.date);
+      const dayText = showDay
+        ? "<time datetime=\"" + esc(g.date) + "\">" + esc(formatDayShort(g.date)) + "</time>"
+        : "";
+      function itemTag(m) {
+        return m.regionName
+          ? "<span class=\"region-tag " + esc(m.regionId) + "\">" + esc(m.regionName) + "</span>"
+          : "";
       }
-    }
-
-    function nodeClass(m) {
-      return "node " + m.status + (m.id === openId ? " open" : "");
-    }
-
-    function renderNodes() {
-      const wrap = document.getElementById("nodes");
-      const slot = "<span class=\"today-slot\" id=\"todaySlot\"></span>";
-      const where = todaySlotWhere(dated, getToday());
-      const buttons = dated.map(function (m, index) {
+      const lines = g.items.map(function (m) {
+        return "<span class=\"task-line\">" + itemTag(m) + "<strong>" + esc(m.name) + "</strong></span>";
+      }).join("");
+      const single = g.items.length === 1 ? " single" : "";
+      if (g.items.length === 1) {
+        const m = g.items[0];
         return (
-          "<button class=\"" + nodeClass(m) + "\" type=\"button\" data-id=\"" + m.id + "\" style=\"--i:" + index + "\" aria-expanded=\"" + (m.id === openId) + "\">" +
+          "<span class=\"caption" + single + "\">" +
+            "<span class=\"task-line\">" + dayText + itemTag(m) + "<strong>" + esc(m.name) + "</strong></span>" +
+          "</span>"
+        );
+      }
+      return (
+        "<span class=\"caption\">" +
+          dayText +
+          lines +
+        "</span>"
+      );
+    }
+
+    function paneContentHeight(groups, drops) {
+      let max = 320;
+      groups.forEach(function (g, i) {
+        const bottom = 76 + (drops[i] || 0) + captionBlockHeight(g) + 80;
+        if (bottom > max) max = bottom;
+      });
+      return max;
+    }
+
+    function paneHtml(ym) {
+      const groups = groupsForMonth(ym);
+      const today = getToday();
+      const todayKey = monthKey(todayIso(today));
+      const progress = ym < todayKey ? 100 : (ym > todayKey ? 0 : dayPercent(todayIso(today)));
+      const ticksDays = daysInMonth(ym);
+      const mid = Math.round(ticksDays / 2);
+      const ticks = "<div class=\"month-ticks\" aria-hidden=\"true\"><span>1日</span><span>" + mid + "日</span><span>" + ticksDays + "日</span></div>";
+      const drops = captionDropLevels(groups);
+      const paneH = paneContentHeight(groups, drops);
+      const nodes = groups.map(function (g, index) {
+        const pct = dayPercent(g.date);
+        return (
+          "<button class=\"" + nodeClass(g) + nodeEdgeClass(pct) + "\" type=\"button\" data-id=\"" + esc(g.id) + "\" style=\"--x:" + pct + "%;--drop:" + drops[index] + ";--i:" + index + "\" aria-expanded=\"" + (g.id === openId) + "\">" +
             "<span class=\"orb-hit\"><span class=\"orb\"></span></span>" +
-            "<span class=\"caption\"><strong>" + m.name + "</strong><time datetime=\"" + m.date + "\">" + formatDate(m.date) + "</time></span>" +
+            groupCaptionHtml(g) +
           "</button>"
         );
-      });
-      let html = "";
-      if (!dated.length) {
-        html = "<p class=\"empty-month\">这个月还没有申请节点</p>" + slot;
-      } else if (where === "before") {
-        html = slot + buttons.join("");
-      } else if (where === "after") {
-        html = buttons.join("") + slot;
-      } else {
-        const splitAt = Number(String(where).split(":")[1]);
-        html = buttons.slice(0, splitAt + 1).join("") + slot + buttons.slice(splitAt + 1).join("");
+      }).join("");
+      const empty = !groups.length
+        ? "<p class=\"empty-month\">" + esc(coveringPhaseForMonth(ym) ? "这个月还没有新的截止点" : "这个月还没有申请节点") + "</p>"
+        : "";
+      return (
+        "<article class=\"month-pane\" data-month=\"" + ym + "\" style=\"min-height:" + paneH + "px\">" +
+          "<p class=\"pane-month-label\">" + esc(formatMonth(ym)) + "</p>" +
+          "<div class=\"rail\">" +
+            todayPinHtml(ym) +
+            "<div class=\"axis\" aria-hidden=\"true\" style=\"--progress:" + progress + "%\"><div class=\"axis-fill\"></div></div>" +
+            "<div class=\"nodes" + (introPlayed ? " no-intro" : "") + "\">" + nodes + "</div>" +
+          "</div>" +
+          ticks +
+          empty +
+        "</article>"
+      );
+    }
+
+    function updateMonthNav() {
+      const i = monthList.indexOf(selectedMonth);
+      const prev = document.getElementById("monthPrev");
+      const next = document.getElementById("monthNext");
+      if (prev) prev.disabled = i <= 0;
+      if (next) next.disabled = i < 0 || i >= monthList.length - 1;
+    }
+
+    function goMonth(delta) {
+      const i = monthList.indexOf(selectedMonth);
+      const next = monthList[i + delta];
+      if (!next) return;
+      selectedMonth = next;
+      document.getElementById("simMonth").value = next;
+      applyDateState(false);
+      renderBanner();
+      renderPhaseNote();
+      renderDetail();
+      syncNodeClasses();
+      updateMonthNav();
+      scrollToMonth(next, false);
+    }
+
+    function jumpToTodayMonth() {
+      const key = monthKey(todayIso(getToday()));
+      let target = monthList.indexOf(key) !== -1 ? key : "";
+      if (!target) {
+        const later = monthList.filter(function (v) { return v >= key; })[0];
+        target = later || monthList[monthList.length - 1] || "";
       }
-      wrap.innerHTML = html;
-      if (introPlayed) wrap.classList.add("no-intro");
-      else introPlayed = true;
+      if (!target) return;
+      selectedMonth = target;
+      document.getElementById("simMonth").value = target;
+      applyDateState(false);
+      renderBanner();
+      renderPhaseNote();
+      renderDetail();
+      syncNodeClasses();
+      updateMonthNav();
+      scrollToMonth(target, false);
     }
 
-    // 点节点时只改 class，不拆掉 DOM，避免手机点击错位
+    function renderStrip() {
+      const scroller = document.getElementById("trackScroller");
+      scroller.innerHTML = monthList.map(paneHtml).join("");
+      introPlayed = true;
+    }
+
+    function scrollToMonth(ym, instant) {
+      const scroller = document.getElementById("trackScroller");
+      const pane = scroller.querySelector(".month-pane[data-month=\"" + ym + "\"]");
+      if (!pane) return;
+      syncingScroll = true;
+      const left = pane.getBoundingClientRect().left - scroller.getBoundingClientRect().left + scroller.scrollLeft;
+      scroller.scrollTo({ left: left, behavior: instant ? "auto" : "smooth" });
+      window.setTimeout(function () { syncingScroll = false; }, instant ? 80 : 480);
+    }
+
+    function monthFromScroll() {
+      const scroller = document.getElementById("trackScroller");
+      const panes = scroller.querySelectorAll(".month-pane");
+      const mid = scroller.getBoundingClientRect().left + scroller.clientWidth / 2;
+      let best = selectedMonth;
+      for (let i = 0; i < panes.length; i++) {
+        const rect = panes[i].getBoundingClientRect();
+        if (mid >= rect.left && mid < rect.right) {
+          best = panes[i].getAttribute("data-month");
+          break;
+        }
+      }
+      return best;
+    }
+
+    function onTrackScroll() {
+      if (syncingScroll) return;
+      const next = monthFromScroll();
+      if (!next || next === selectedMonth) return;
+      selectedMonth = next;
+      const select = document.getElementById("simMonth");
+      if (select.value !== next) select.value = next;
+      applyDateState(true);
+      renderBanner();
+      renderPhaseNote();
+      renderDetail();
+      syncNodeClasses();
+      updateMonthNav();
+    }
+
     function syncNodeClasses() {
-      const buttons = document.querySelectorAll(".node");
-      dated.forEach(function (m, index) {
-        const el = buttons[index];
-        if (!el) return;
-        el.className = nodeClass(m);
-        el.setAttribute("aria-expanded", m.id === openId);
-      });
+      const buttons = document.querySelectorAll("#trackScroller .node");
+      for (let i = 0; i < buttons.length; i++) {
+        const el = buttons[i];
+        const id = el.getAttribute("data-id");
+        const isOpen = id === openId;
+        el.classList.toggle("open", isOpen);
+        el.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      }
     }
 
-    function renderDetail() {
-      const box = document.getElementById("detail");
-      const item = dated.find(function (m) { return m.id === openId; });
-      if (!item) { box.hidden = true; box.innerHTML = ""; return; }
-      const saved = loadChecks()[item.id] || {};
-      const checks = item.todos.map(function (text, index) {
+    function itemDetailHtml(item) {
+      const saved = loadItemChecks(item);
+      const mid = todoKey(item);
+      const checks = (item.todos || []).map(function (text, index) {
         const checked = !!saved[index];
         return (
           "<li class=\"" + (checked ? "checked" : "") + "\">" +
             "<span class=\"chev\" aria-hidden=\"true\">›</span>" +
-            "<input type=\"checkbox\" id=\"todo-" + item.id + "-" + index + "\" data-mid=\"" + item.id + "\" data-idx=\"" + index + "\"" + (checked ? " checked" : "") + " />" +
-            "<label for=\"todo-" + item.id + "-" + index + "\">" + text + "</label>" +
+            "<input type=\"checkbox\" id=\"todo-" + item.id + "-" + index + "\" data-mid=\"" + esc(mid) + "\" data-idx=\"" + index + "\"" + (checked ? " checked" : "") + " />" +
+            "<label for=\"todo-" + item.id + "-" + index + "\">" + esc(text) + "</label>" +
           "</li>"
         );
       }).join("");
-      const doneCount = item.todos.filter(function (_, i) { return saved[i]; }).length;
+      const doneCount = (item.todos || []).filter(function (_, i) { return saved[i]; }).length;
+      const today = getToday();
+      const here = isSpanning(item) && inRange(today, item.rangeStart, item.rangeEnd);
+      return (
+        "<div class=\"detail-block\">" +
+          "<div class=\"detail-head\"><h3>" + esc(item.name) + "</h3>" +
+          (item.regionName ? "<span class=\"badge region-" + esc(item.regionId) + "\">" + esc(item.regionName) + "</span>" : "") +
+          "<span class=\"badge " + item.status + "\">" + statusText[item.status] + "</span>" +
+          (here ? "<span class=\"badge here\">今天在这</span>" : "") +
+          (item.predicted ? "<span class=\"badge predicted\">预测</span>" : "") +
+          "</div>" +
+          "<p class=\"summary\">" + esc(item.summary) + (item.tzNote ? " " + esc(item.tzNote) : "") + "</p>" +
+          "<p class=\"progress-note\">待办 " + doneCount + " / " + (item.todos || []).length + " · " + (useBackend ? "勾选已保存到网站服务器" : "勾选保存在这台电脑的浏览器里") + "</p>" +
+          "<ul class=\"todos\">" + checks + "</ul>" +
+        "</div>"
+      );
+    }
+
+    function renderDetail() {
+      const box = document.getElementById("detail");
+      const group = dated.find(function (g) { return g.id === openId; });
+      if (!group || !group.items.length) { box.hidden = true; box.innerHTML = ""; return; }
       box.hidden = false;
-      box.innerHTML =
-        "<div class=\"detail-head\"><h3>" + item.name + "</h3><span class=\"badge " + item.status + "\">" + statusText[item.status] + "</span></div>" +
-        "<p class=\"summary\">" + item.summary + "</p>" +
-        "<p class=\"progress-note\">待办 " + doneCount + " / " + item.todos.length + " · 勾选保存在这台电脑的浏览器里</p>" +
-        "<ul class=\"todos\">" + checks + "</ul>";
+      const dayHead = group.items.length > 1
+        ? "<p class=\"progress-note\" style=\"margin-top:0\">" + esc(formatDate(group.date)) + " · " + group.items.length + " 个任务合在同一个点</p>"
+        : "";
+      box.innerHTML = dayHead + group.items.map(itemDetailHtml).join("");
     }
 
-    function renderAll() {
+    function renderAll(rebuildStrip) {
       renderBanner();
-      renderNodes();
+      renderPhaseNote();
+      if (rebuildStrip !== false) {
+        renderStrip();
+        requestAnimationFrame(function () { scrollToMonth(selectedMonth, true); });
+      }
       renderDetail();
-      placeTodayPin();
+      updateMonthNav();
     }
 
-    document.getElementById("nodes").addEventListener("click", function (event) {
+    function applyProfile(p) {
+      profile = p;
+      region = p.region;
+      entryYear = entryYearFromAge(p.age);
+      if (useBackend) {
+        const yearKey = String(entryYear);
+        const existing = memoryTodosByYear[yearKey];
+        if (!existing || Object.keys(existing).length === 0) {
+          try {
+            const local = JSON.parse(localStorage.getItem(storageKey()) || "null");
+            if (local && typeof local === "object" && Object.keys(local).length) {
+              memoryTodosByYear[yearKey] = local;
+              saveChecks(local);
+            }
+          } catch (e) {}
+        }
+      }
+      milestones = buildMilestones(region, entryYear);
+      introPlayed = false;
+      fillSimSelect();
+      applyDateState(false);
+      renderSubtitle();
+      renderSources();
+      renderAll(true);
+    }
+
+    function showSetup(prefill) {
+      const setup = document.getElementById("setup");
+      setup.hidden = false;
+      document.getElementById("setupError").textContent = "";
+      document.getElementById("setupCancel").hidden = !(profile || loadProfile());
+      if (prefill) {
+        document.getElementById("ageInput").value = prefill.age;
+        setPickedRegion(prefill.region);
+      }
+    }
+
+    function setPickedRegion(id) {
+      pickedRegion = id;
+      const buttons = document.querySelectorAll("#regionPicks button");
+      for (let i = 0; i < buttons.length; i++) {
+        buttons[i].classList.toggle("on", buttons[i].getAttribute("data-region") === id);
+      }
+    }
+
+    document.getElementById("regionPicks").addEventListener("click", function (event) {
+      const btn = event.target.closest("button");
+      if (!btn) return;
+      setPickedRegion(btn.getAttribute("data-region"));
+    });
+
+    document.getElementById("setupGo").addEventListener("click", function () {
+      const raw = document.getElementById("ageInput").value.trim();
+      const age = Number(raw);
+      const err = document.getElementById("setupError");
+      if (!raw || !/^\d+$/.test(raw) || age < 12 || age > 22) {
+        err.textContent = "请填写 12 到 22 之间的周岁整数。";
+        return;
+      }
+      if (!pickedRegion) {
+        err.textContent = "请先选择想申请的地区。";
+        return;
+      }
+      err.textContent = "";
+      const next = { age: age, region: pickedRegion };
+      saveProfile(next);
+      document.getElementById("setup").hidden = true;
+      applyProfile(next);
+    });
+
+    function fillHelpModal() {
+      const setupLead = document.querySelector(".setup-lead");
+      const subtitle = document.getElementById("subtitle");
+      const swipe = document.querySelector(".swipe-hint");
+      document.getElementById("helpSetup").textContent = setupLead ? setupLead.textContent : "";
+      document.getElementById("helpSubtitle").textContent = subtitle ? subtitle.textContent : "";
+      document.getElementById("helpSwipe").textContent = swipe ? swipe.textContent : "";
+    }
+
+    function openHelpModal() {
+      fillHelpModal();
+      document.getElementById("helpModal").hidden = false;
+      document.getElementById("helpAck").focus();
+    }
+
+    function closeHelpModal() {
+      document.getElementById("helpModal").hidden = true;
+    }
+
+    document.getElementById("navChangeProfile").addEventListener("click", function () {
+      showSetup(profile || loadProfile());
+    });
+    document.getElementById("navHow").addEventListener("click", function () {
+      helpLeadsToSetup = false;
+      openHelpModal();
+    });
+    document.getElementById("helpAck").addEventListener("click", function () {
+      const goSetup = helpLeadsToSetup;
+      helpLeadsToSetup = false;
+      closeHelpModal();
+      if (goSetup) showSetup(profile || loadProfile());
+    });
+    document.getElementById("backTop").addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    document.getElementById("setupCancel").addEventListener("click", function () {
+      document.getElementById("setup").hidden = true;
+    });
+
+    document.getElementById("trackScroller").addEventListener("click", function (event) {
       const btn = event.target.closest(".node");
       if (!btn) return;
+      const pane = btn.closest(".month-pane");
+      const ym = pane ? pane.getAttribute("data-month") : "";
       openId = btn.getAttribute("data-id");
+      if (ym && ym !== selectedMonth) {
+        selectedMonth = ym;
+        document.getElementById("simMonth").value = ym;
+        applyDateState(true);
+        renderBanner();
+        renderPhaseNote();
+      }
       syncNodeClasses();
       renderDetail();
     });
@@ -925,20 +2753,74 @@
       const idx = input.getAttribute("data-idx");
       if (!all[mid]) all[mid] = {};
       all[mid][idx] = input.checked;
+      delete all[mid + "-start"];
+      delete all[mid + "-end"];
       saveChecks(all);
       renderDetail();
     });
 
-    window.addEventListener("resize", placeTodayPin);
+    let scrollTimer = 0;
+    document.getElementById("trackScroller").addEventListener("scroll", function () {
+      window.clearTimeout(scrollTimer);
+      scrollTimer = window.setTimeout(onTrackScroll, 80);
+    });
+    document.getElementById("trackScroller").addEventListener("wheel", function (event) {
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+      event.preventDefault();
+      this.scrollLeft += event.deltaY;
+    }, { passive: false });
+
+    window.addEventListener("resize", function () {
+      if (!selectedMonth) return;
+      renderStrip();
+      requestAnimationFrame(function () { scrollToMonth(selectedMonth, true); });
+      updateMonthNav();
+    });
     document.getElementById("simMonth").addEventListener("change", function () {
       selectedMonth = this.value;
       applyDateState(false);
-      renderAll();
+      renderBanner();
+      renderPhaseNote();
+      renderDetail();
+      syncNodeClasses();
+      updateMonthNav();
+      scrollToMonth(selectedMonth, false);
     });
 
-    fillSimSelect();
-    applyDateState(false);
-    renderAll();
+    document.getElementById("monthPrev").addEventListener("click", function () { goMonth(-1); });
+    document.getElementById("monthNext").addEventListener("click", function () { goMonth(1); });
+    document.getElementById("jumpToday").addEventListener("click", jumpToTodayMonth);
+
+    (function boot() {
+      api("GET", "/api/dates").then(function (data) {
+        applyOfficialDates(data);
+      }).catch(function () {});
+
+      api("GET", "/api/state").then(function (state) {
+        useBackend = true;
+        memoryProfile = state.profile || null;
+        memoryTodosByYear = state.todos || {};
+        if (!memoryProfile) {
+          try { memoryProfile = JSON.parse(localStorage.getItem(PROFILE_KEY)); } catch (e) {}
+          if (memoryProfile && memoryProfile.age && memoryProfile.region) saveProfile(memoryProfile);
+        }
+        startApp(memoryProfile);
+      }).catch(function () {
+        useBackend = false;
+        startApp(loadProfile());
+      });
+
+      function startApp(saved) {
+        if (saved && saved.age && saved.region) {
+          setPickedRegion(saved.region);
+          document.getElementById("ageInput").value = saved.age;
+          applyProfile(saved);
+        }
+        helpLeadsToSetup = true;
+        openHelpModal();
+      }
+    })();
+
   </script>
 </body>
 </html>

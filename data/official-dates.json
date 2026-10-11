@@ -1,0 +1,54 @@
+{
+  "fetchedAt": null,
+  "baseEntryYear": 2027,
+  "sources": [
+    {
+      "id": "hku",
+      "name": "HKU International / Non-JUPAS",
+      "url": "https://admissions.hku.hk/apply/international-qualifications",
+      "qs": 11
+    },
+    {
+      "id": "ucas",
+      "name": "UCAS key dates",
+      "url": "https://www.ucas.com/advisers/help-and-training/key-dates-timeline"
+    },
+    {
+      "id": "chicago",
+      "name": "University of Chicago",
+      "url": "https://collegeadmissions.uchicago.edu/",
+      "qs": 13
+    },
+    {
+      "id": "penn",
+      "name": "University of Pennsylvania",
+      "url": "https://admissions.upenn.edu/",
+      "qs": 15
+    },
+    {
+      "id": "cornell",
+      "name": "Cornell University",
+      "url": "https://admissions.cornell.edu/",
+      "qs": 16
+    },
+    {
+      "id": "berkeley",
+      "name": "UC Berkeley",
+      "url": "https://admissions.berkeley.edu/",
+      "qs": 17
+    }
+  ],
+  "patches": [
+    { "id": "hk-open", "start": "2026-09-23", "predicted": false },
+    { "id": "hk-first-round", "start": "2026-11-26T12:00", "predicted": true },
+    { "id": "hk-docs", "start": "2026-12-03", "predicted": true },
+    { "id": "hk-first-results", "start": "2026-12-08", "predicted": true },
+    { "id": "hk-waitlist", "start": "2027-03-31", "predicted": true },
+    { "id": "hk-close", "start": "2027-08-21T12:00", "predicted": true },
+    { "id": "uk-ucas-search", "start": "2026-04-28", "predicted": false },
+    { "id": "uk-ucas-form", "start": "2026-05-12", "predicted": false },
+    { "id": "uk-ucas-submit", "start": "2026-09-01", "predicted": false },
+    { "id": "uk-oxbridge-med", "start": "2026-10-16T01:00", "predicted": false },
+    { "id": "uk-ucas-ecd", "start": "2027-01-14T02:00", "predicted": false }
+  ]
+}
