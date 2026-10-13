@@ -8,6 +8,11 @@ ApplyTimeline is a web app that helps international high school students plan un
 
 ## 当前版本
 
+**v1.2.0 — 时间线屏幕自适应**
+
+- 时间线标签宽度、避让和换月箭头随窗口变化
+- 适配电脑、平板、手机；文案和功能未改
+
 **v1.1.1 — 字号略增**
 
 - 页面文字整体大约加大 1px，方便阅读

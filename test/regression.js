@@ -28,6 +28,14 @@ function keysOf(block) {
   return keys;
 }
 
+check("timeline layout follows viewport", function () {
+  assert.ok(html.indexOf("function layoutMetrics") !== -1);
+  assert.ok(html.indexOf("--cap-w") !== -1);
+  assert.ok(html.indexOf("@media (max-width: 820px)") !== -1);
+  assert.ok(html.indexOf("@media (max-width: 480px)") !== -1);
+  assert.ok(html.indexOf("visualViewport") !== -1);
+});
+
 check("page type is slightly larger", function () {
   assert.ok(/body\s*\{[\s\S]*?font-size:\s*1[78]px/.test(html));
   assert.ok(html.indexOf("font-size: 14px") !== -1);
