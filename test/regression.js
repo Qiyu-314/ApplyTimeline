@@ -30,11 +30,42 @@ function keysOf(block) {
 
 check("timeline layout follows viewport", function () {
   assert.ok(html.indexOf("function layoutMetrics") !== -1);
+  assert.ok(html.indexOf("function settleCaptions") !== -1);
+  assert.ok(html.indexOf("function isPhoneTimeline") !== -1);
   assert.ok(html.indexOf("--cap-w") !== -1);
   assert.ok(html.indexOf("@media (max-width: 820px)") !== -1);
   assert.ok(html.indexOf("@media (max-width: 640px)") !== -1);
   assert.ok(html.indexOf("flex-direction: column") !== -1);
   assert.ok(html.indexOf("visualViewport") !== -1);
+});
+
+check("nearby desktop captions drop instead of overlapping", function () {
+  const capPx = 144;
+  const padX = Math.max(12, Math.round(capPx * 0.16));
+  const gap = 16;
+  const lineH = 72;
+  const extra = 8;
+  const edge = 12;
+  const railW = 920;
+  function pct(day) { return ((day - 0.5) / 31) * 100; }
+  function box(day, items, tick) {
+    const p = pct(day);
+    const x = railW * p / 100;
+    let left;
+    let right;
+    if (p < edge) { left = x; right = x + capPx; }
+    else if (p > 100 - edge) { left = x - capPx; right = x; }
+    else { left = x - capPx / 2; right = x + capPx / 2; }
+    const h = (tick ? 0 : 18) + items * (lineH + extra);
+    return { left: left - padX, right: right + padX, h: h };
+  }
+  const a = box(1, 2, true);
+  const b = box(3, 1, false);
+  const xHit = a.left < b.right && a.right > b.left;
+  assert.ok(xHit, "Dec 1 and Dec 3 should count as overlapping in X");
+  const drop = a.h + gap;
+  assert.ok(drop >= b.h, "Dec 3 should be pushed fully below Dec 1");
+  assert.ok(a.h + gap > 150, "two-item block height should not be underestimated");
 });
 
 check("language toggle works during intro", function () {

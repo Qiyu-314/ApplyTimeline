@@ -2760,6 +2760,10 @@
       );
     }
 
+    function isPhoneTimeline() {
+      return window.matchMedia && window.matchMedia("(max-width: 640px)").matches;
+    }
+
     function layoutMetrics() {
       const scroller = document.getElementById("trackScroller");
       const w = scroller && scroller.clientWidth ? scroller.clientWidth : (window.innerWidth || 720);
@@ -2771,14 +2775,14 @@
         ? Math.round(Math.min(108, Math.max(86, railW * 0.36)))
         : tablet
           ? Math.round(Math.min(124, Math.max(100, railW * 0.26)))
-          : 132;
+          : Math.round(Math.min(160, Math.max(140, railW * 0.16)));
       return {
         railW: railW,
         capPx: capPx,
-        gap: phone ? 8 : (tablet ? 10 : 12),
-        singleH: phone ? 58 : 56,
-        lineH: phone ? 46 : 50,
-        extra: phone ? 10 : 0,
+        gap: phone ? 8 : (tablet ? 14 : 16),
+        singleH: phone ? 58 : 86,
+        lineH: phone ? 46 : 72,
+        extra: phone ? 10 : 8,
         edge: phone ? 20 : (tablet ? 15 : 12)
       };
     }
@@ -2818,17 +2822,20 @@
           left = x - capPx / 2;
           right = x + capPx / 2;
         }
+        const padX = Math.max(12, Math.round(capPx * 0.16));
         const h = captionBlockHeight(g);
         let top = 0;
         let hit = true;
         let guard = 0;
+        const boxL = left - padX;
+        const boxR = right + padX;
         while (hit && guard < 24) {
           hit = false;
           guard += 1;
           const bottom = top + h;
           for (let j = 0; j < placed.length; j++) {
             const p = placed[j];
-            const xHit = left < p.right && right > p.left;
+            const xHit = boxL < p.right && boxR > p.left;
             const yHit = top < p.bottom && bottom > p.top;
             if (xHit && yHit) {
               top = p.bottom + gap;
@@ -2838,7 +2845,7 @@
           }
         }
         drops.push(top);
-        placed.push({ left: left, right: right, top: top, bottom: top + h });
+        placed.push({ left: boxL, right: boxR, top: top, bottom: top + h });
       });
       return drops;
     }
@@ -2964,10 +2971,73 @@
       scrollToMonth(target, false);
     }
 
+    function settleCaptions() {
+      if (isPhoneTimeline()) return;
+      const wrap = document.getElementById("trackWrap");
+      const scroller = document.getElementById("trackScroller");
+      const panes = document.querySelectorAll("#trackScroller .month-pane");
+      const gap = 14;
+      const padX = 12;
+      const prevWrapOverflow = wrap ? wrap.style.overflow : "";
+      const prevScrollerOverflow = scroller ? scroller.style.overflowY : "";
+      if (wrap) wrap.style.overflow = "visible";
+      if (scroller) scroller.style.overflowY = "visible";
+      for (let p = 0; p < panes.length; p++) {
+        panes[p].style.overflow = "visible";
+        panes[p].style.minHeight = "1600px";
+      }
+      void (scroller && scroller.offsetHeight);
+      for (let p = 0; p < panes.length; p++) {
+        const pane = panes[p];
+        const nodes = pane.querySelectorAll(".node");
+        const placed = [];
+        let lowest = 0;
+        for (let i = 0; i < nodes.length; i++) {
+          const node = nodes[i];
+          const cap = node.querySelector(".caption");
+          if (!cap) continue;
+          let drop = Number(node.style.getPropertyValue("--drop")) || 0;
+          let guard = 0;
+          while (guard < 28) {
+            guard += 1;
+            node.style.setProperty("--drop", String(drop));
+            const r = cap.getBoundingClientRect();
+            const box = {
+              left: r.left - padX,
+              right: r.right + padX,
+              top: r.top,
+              bottom: r.bottom
+            };
+            let hit = null;
+            for (let j = 0; j < placed.length; j++) {
+              const prev = placed[j];
+              if (box.left < prev.right && box.right > prev.left && box.top < prev.bottom && box.bottom > prev.top) {
+                hit = prev;
+                break;
+              }
+            }
+            if (!hit) {
+              placed.push(box);
+              if (r.bottom > lowest) lowest = r.bottom;
+              break;
+            }
+            drop += Math.max(gap, Math.ceil(hit.bottom - box.top + gap));
+          }
+        }
+        const paneTop = pane.getBoundingClientRect().top;
+        const need = lowest ? Math.ceil(lowest - paneTop + 48) : 360;
+        pane.style.minHeight = Math.max(360, need) + "px";
+        pane.style.overflow = "";
+      }
+      if (wrap) wrap.style.overflow = prevWrapOverflow;
+      if (scroller) scroller.style.overflowY = prevScrollerOverflow;
+    }
+
     function renderStrip() {
       const scroller = document.getElementById("trackScroller");
       scroller.innerHTML = monthList.map(paneHtml).join("");
       introPlayed = true;
+      requestAnimationFrame(function () { settleCaptions(); });
     }
 
     function scrollToMonth(ym, instant) {
