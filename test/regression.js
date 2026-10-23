@@ -32,8 +32,16 @@ check("timeline layout follows viewport", function () {
   assert.ok(html.indexOf("function layoutMetrics") !== -1);
   assert.ok(html.indexOf("--cap-w") !== -1);
   assert.ok(html.indexOf("@media (max-width: 820px)") !== -1);
-  assert.ok(html.indexOf("@media (max-width: 480px)") !== -1);
+  assert.ok(html.indexOf("@media (max-width: 640px)") !== -1);
+  assert.ok(html.indexOf("flex-direction: column") !== -1);
   assert.ok(html.indexOf("visualViewport") !== -1);
+});
+
+check("language toggle works during intro", function () {
+  assert.ok(html.indexOf("body.help-open #navLang") !== -1);
+  assert.ok(html.indexOf('document.body.classList.add("help-open")') !== -1);
+  assert.ok(html.indexOf('document.body.classList.remove("help-open")') !== -1);
+  assert.ok(/\.topbar\s*\{[\s\S]*?z-index:\s*100/.test(html));
 });
 
 check("page type is slightly larger", function () {

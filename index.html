@@ -51,7 +51,7 @@
     .topbar {
       position: sticky;
       top: 0;
-      z-index: 40;
+      z-index: 100;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -102,8 +102,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 72px 20px 20px;
       backdrop-filter: blur(8px);
+    }
+    body.help-open .topbar-links a,
+    body.help-open .topbar-links button:not(#navLang) {
+      opacity: 0.38;
+      pointer-events: none;
+    }
+    body.help-open #navLang {
+      background: rgba(255, 255, 255, 0.34);
+      box-shadow: 0 0 0 2px #fff, 0 6px 16px rgba(255, 255, 255, 0.28);
     }
     .help-modal[hidden] { display: none; }
     .help-card {
@@ -1026,11 +1035,96 @@
       .timeline-card { border-radius: 20px; padding: 14px 6px 10px; }
       header.hero { border-radius: 20px; padding: 12px 12px; }
       .topbar-brand { font-size: 16px; }
-      .month-pane { padding: 60px 8px 28px; }
-      .month-pane .caption .task-line strong { -webkit-line-clamp: 3; }
       .today-banner { gap: 8px; }
       .setup-card { padding: 22px 16px 18px; }
       .help-card { padding: 22px 16px 18px; }
+    }
+
+    /* 手机：时间线改竖排，每个节点一行，文字不再叠在一起 */
+    @media (max-width: 640px) {
+      .track-wrap { position: relative; gap: 8px; }
+      .month-nav {
+        position: static;
+        width: 36px;
+        height: 36px;
+        flex-basis: 36px;
+        top: auto;
+        left: auto;
+        right: auto;
+        opacity: 1;
+      }
+      .month-pane {
+        padding: 48px 8px 16px;
+        min-height: 0 !important;
+        overflow: visible;
+      }
+      .month-pane .rail {
+        height: auto;
+        min-height: 0;
+        margin: 8px 4px 8px 28px;
+        padding: 6px 0 10px;
+      }
+      .month-pane .axis {
+        left: -16px;
+        right: auto;
+        top: 10px;
+        bottom: 10px;
+        width: 6px;
+        height: auto;
+      }
+      .month-pane .axis-fill {
+        width: 100%;
+        height: var(--progress, 0%);
+        background: linear-gradient(180deg, #12a060 0%, #7ed9a8 40%, #ffb347 78%, #ff7a1a 100%);
+      }
+      .month-pane .nodes {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        gap: 12px;
+      }
+      .month-pane .node {
+        position: relative;
+        left: auto;
+        top: auto;
+        width: 100%;
+        margin-left: 0;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .month-pane .caption,
+      .month-pane .node.near-start .caption,
+      .month-pane .node.near-end .caption {
+        position: static;
+        left: auto;
+        right: auto;
+        top: auto;
+        width: auto;
+        max-width: none;
+        transform: none;
+        text-align: left;
+        padding: 2px 0 0;
+      }
+      .month-pane .caption .task-line,
+      .month-pane .caption.single .task-line,
+      .month-pane .node.near-start .caption.single .task-line,
+      .month-pane .node.near-end .caption.single .task-line {
+        justify-content: flex-start;
+        align-items: flex-start;
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .month-pane .caption .task-line strong {
+        font-size: 13px;
+        -webkit-line-clamp: 4;
+      }
+      .month-ticks { display: none; }
+      .month-pane .today-pin { display: none; }
+      .month-pane .node.is-today .orb {
+        box-shadow: 0 0 0 4px rgba(225, 29, 112, 0.35);
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -2800,10 +2894,12 @@
       const metrics = layoutMetrics();
       const drops = captionDropLevels(groups);
       const paneH = paneContentHeight(groups, drops);
+      const todayKeyDay = todayIso(today);
       const nodes = groups.map(function (g, index) {
         const pct = dayPercent(g.date);
+        const todayClass = dateKey(g.date) === todayKeyDay ? " is-today" : "";
         return (
-          "<button class=\"" + nodeClass(g) + nodeEdgeClass(pct, metrics.edge) + "\" type=\"button\" data-id=\"" + esc(g.id) + "\" style=\"--x:" + pct + "%;--drop:" + drops[index] + ";--i:" + index + "\" aria-expanded=\"" + (g.id === openId) + "\">" +
+          "<button class=\"" + nodeClass(g) + nodeEdgeClass(pct, metrics.edge) + todayClass + "\" type=\"button\" data-id=\"" + esc(g.id) + "\" style=\"--x:" + pct + "%;--drop:" + drops[index] + ";--i:" + index + "\" aria-expanded=\"" + (g.id === openId) + "\">" +
             "<span class=\"orb-hit\"><span class=\"orb\"></span></span>" +
             groupCaptionHtml(g) +
           "</button>"
@@ -3060,11 +3156,13 @@
     function openHelpModal() {
       fillHelpModal();
       document.getElementById("helpModal").hidden = false;
+      document.body.classList.add("help-open");
       document.getElementById("helpAck").focus();
     }
 
     function closeHelpModal() {
       document.getElementById("helpModal").hidden = true;
+      document.body.classList.remove("help-open");
     }
 
     document.getElementById("navChangeProfile").addEventListener("click", function () {

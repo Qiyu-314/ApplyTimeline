@@ -8,6 +8,11 @@ ApplyTimeline is a web app that helps international high school students plan un
 
 ## 当前版本
 
+**v1.2.1 — 手机竖排时间线 + 介绍时可切语言**
+
+- 电脑、iPad 仍是横轴；手机改为竖排，节点一行一个，文字不再重叠
+- 第一次打开介绍时，导航栏语言按钮保持可点，可在看说明时切换中英文
+
 **v1.2.0 — 时间线屏幕自适应**
 
 - 时间线标签宽度、避让和换月箭头随窗口变化
