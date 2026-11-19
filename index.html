@@ -256,7 +256,7 @@
       border-radius: 28px;
       padding: 22px 18px 18px;
       box-shadow: var(--shadow);
-      overflow: hidden;
+      overflow: visible;
       animation: rise 0.65s var(--ease) 0.06s both;
     }
     .section-title {
@@ -304,10 +304,10 @@
     }
     .track-wrap {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 12px;
       padding: 0;
-      overflow: hidden;
+      overflow: visible;
     }
     .month-nav {
       position: static;
@@ -324,6 +324,7 @@
       cursor: pointer;
       color: var(--ink);
       z-index: 8;
+      margin-top: 88px;
     }
     .month-nav.prev,
     .month-nav.next { left: auto; right: auto; top: auto; }
@@ -345,6 +346,7 @@
       display: flex;
       overflow-x: auto;
       overflow-y: hidden;
+      align-items: flex-start;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
@@ -361,9 +363,10 @@
       scroll-snap-align: start;
       scroll-snap-stop: always;
       position: relative;
-      overflow: hidden;
-      padding: 76px 28px 48px;
-      min-height: 520px;
+      overflow-x: clip;
+      overflow-y: visible;
+      padding: 76px 28px 24px;
+      min-height: 220px;
       --cap-w: 132px;
     }
     .pane-month-label {
@@ -715,10 +718,13 @@
       letter-spacing: 0.02em;
     }
     .caption .region-tag.us,
+    .caption-list-item .region-tag.us,
     .badge.region-us { background: #2563eb; color: #fff; }
     .caption .region-tag.uk,
+    .caption-list-item .region-tag.uk,
     .badge.region-uk { background: #6d28d9; color: #fff; }
     .caption .region-tag.hk,
+    .caption-list-item .region-tag.hk,
     .badge.region-hk { background: #163d2e; color: #fff; }
     .caption .pred-tag {
       display: inline-block;
@@ -743,6 +749,74 @@
       color: var(--muted);
       font-size: 15px;
       font-weight: 700;
+    }
+
+    /* 电脑 / iPad：轴上只留圆点，完整文字放在轴下方列表，避免被卡片裁切 */
+    .month-caption-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      list-style: none;
+      margin: 14px 4px 0;
+      padding: 0;
+    }
+    .month-caption-list li { margin: 0; }
+    .caption-list-item {
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin: 0;
+      padding: 10px 12px;
+      border: 1px solid #f0e4d6;
+      border-radius: 14px;
+      background: #fffaf4;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .caption-list-item:hover,
+    .caption-list-item.is-open {
+      border-color: #c9d8f0;
+      background: #f4f8ff;
+    }
+    .caption-list-item time {
+      flex: 0 0 52px;
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+    .caption-list-body { flex: 1; min-width: 0; }
+    .caption-list-item .task-line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .caption-list-item .task-line:first-child { margin-top: 0; }
+    .caption-list-item .region-tag {
+      display: inline-block;
+      margin: 0;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .caption-list-item strong {
+      display: block;
+      flex: 1;
+      min-width: 12em;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+    @media (min-width: 641px) {
+      .month-pane { min-height: 0 !important; }
+      .month-pane .node > .caption { display: none; }
     }
 
     /* 深色详情卡；[hidden] 必须自己写，否则动画/display 会把原生 hidden 顶掉 */
@@ -1014,6 +1088,7 @@
         width: 32px;
         height: 32px;
         flex-basis: 32px;
+        margin-top: 0;
         opacity: 0.92;
       }
       .month-nav.prev { left: 2px; }
@@ -1042,7 +1117,9 @@
 
     /* 手机：时间线改竖排，每个节点一行，文字不再叠在一起 */
     @media (max-width: 640px) {
-      .track-wrap { position: relative; gap: 8px; }
+      .track-wrap { position: relative; gap: 8px; align-items: center; }
+      .month-caption-list { display: none; }
+      .month-nav { margin-top: 0; }
       .month-nav {
         position: static;
         width: 36px;
@@ -2880,6 +2957,26 @@
       );
     }
 
+    function captionListHtml(groups) {
+      if (!groups.length) return "";
+      const items = groups.map(function (g) {
+        const lines = g.items.map(function (m) {
+          const tag = m.regionName
+            ? "<span class=\"region-tag " + esc(m.regionId) + "\">" + esc(m.regionName) + "</span>"
+            : "";
+          return "<span class=\"task-line\">" + tag + "<strong>" + esc(m.name) + "</strong></span>";
+        }).join("");
+        const isOpen = g.id === openId ? " is-open" : "";
+        return (
+          "<li><button type=\"button\" class=\"caption-list-item" + isOpen + "\" data-id=\"" + esc(g.id) + "\" aria-expanded=\"" + (g.id === openId) + "\">" +
+            "<time datetime=\"" + esc(g.date) + "\">" + esc(formatDayShort(g.date)) + "</time>" +
+            "<span class=\"caption-list-body\">" + lines + "</span>" +
+          "</button></li>"
+        );
+      }).join("");
+      return "<ul class=\"month-caption-list\">" + items + "</ul>";
+    }
+
     function paneContentHeight(groups, drops) {
       let max = 320;
       groups.forEach(function (g, i) {
@@ -2924,6 +3021,7 @@
             "<div class=\"nodes" + (introPlayed ? " no-intro" : "") + "\">" + nodes + "</div>" +
           "</div>" +
           ticks +
+          captionListHtml(groups) +
           empty +
         "</article>"
       );
@@ -2973,6 +3071,7 @@
 
     function settleCaptions() {
       if (isPhoneTimeline()) return;
+      if (window.matchMedia && window.matchMedia("(min-width: 641px)").matches) return;
       const wrap = document.getElementById("trackWrap");
       const scroller = document.getElementById("trackScroller");
       const panes = document.querySelectorAll("#trackScroller .month-pane");
@@ -3033,11 +3132,26 @@
       if (scroller) scroller.style.overflowY = prevScrollerOverflow;
     }
 
+    function fitActivePaneHeight() {
+      const scroller = document.getElementById("trackScroller");
+      if (!scroller) return;
+      if (isPhoneTimeline()) {
+        scroller.style.height = "";
+        return;
+      }
+      const pane = scroller.querySelector(".month-pane[data-month=\"" + selectedMonth + "\"]");
+      if (!pane) return;
+      scroller.style.height = pane.scrollHeight + "px";
+    }
+
     function renderStrip() {
       const scroller = document.getElementById("trackScroller");
       scroller.innerHTML = monthList.map(paneHtml).join("");
       introPlayed = true;
-      requestAnimationFrame(function () { settleCaptions(); });
+      requestAnimationFrame(function () {
+        settleCaptions();
+        fitActivePaneHeight();
+      });
     }
 
     function scrollToMonth(ym, instant) {
@@ -3047,6 +3161,7 @@
       syncingScroll = true;
       const left = pane.getBoundingClientRect().left - scroller.getBoundingClientRect().left + scroller.scrollLeft;
       scroller.scrollTo({ left: left, behavior: instant ? "auto" : "smooth" });
+      fitActivePaneHeight();
       window.setTimeout(function () { syncingScroll = false; }, instant ? 80 : 480);
     }
 
@@ -3078,15 +3193,17 @@
       renderDetail();
       syncNodeClasses();
       updateMonthNav();
+      fitActivePaneHeight();
     }
 
     function syncNodeClasses() {
-      const buttons = document.querySelectorAll("#trackScroller .node");
+      const buttons = document.querySelectorAll("#trackScroller .node, #trackScroller .caption-list-item");
       for (let i = 0; i < buttons.length; i++) {
         const el = buttons[i];
         const id = el.getAttribute("data-id");
         const isOpen = id === openId;
         el.classList.toggle("open", isOpen);
+        el.classList.toggle("is-open", isOpen);
         el.setAttribute("aria-expanded", isOpen ? "true" : "false");
       }
     }
@@ -3256,7 +3373,7 @@
     });
 
     document.getElementById("trackScroller").addEventListener("click", function (event) {
-      const btn = event.target.closest(".node");
+      const btn = event.target.closest(".node, .caption-list-item");
       if (!btn) return;
       const pane = btn.closest(".month-pane");
       const ym = pane ? pane.getAttribute("data-month") : "";
