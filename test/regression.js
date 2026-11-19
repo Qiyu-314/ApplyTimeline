@@ -39,6 +39,12 @@ check("timeline layout follows viewport", function () {
   assert.ok(html.indexOf("visualViewport") !== -1);
 });
 
+check("phone timeline shows a date on every node", function () {
+  assert.ok(html.indexOf("isPhoneTimeline() || !isTickDay(g.date)") !== -1);
+  assert.ok(html.indexOf("function layoutPhoneChrome") !== -1);
+  assert.ok(/@media \(max-width: 640px\)[\s\S]*?\.month-pane \.caption time[\s\S]*?position:\s*sticky/.test(html));
+});
+
 check("phone setup overlay can show the full form", function () {
   assert.ok(html.indexOf("function layoutPhoneSetup") !== -1);
   assert.ok(html.indexOf("function hideSetup") !== -1);

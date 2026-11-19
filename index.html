@@ -1215,6 +1215,20 @@
         font-size: 13px;
         -webkit-line-clamp: 4;
       }
+      .month-pane .caption time {
+        display: block;
+        position: sticky;
+        top: calc(var(--phone-nav-h, 112px) + 6px);
+        z-index: 4;
+        margin: 0 0 4px;
+        padding: 2px 0;
+        background: #fff;
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 800;
+      }
+      html { scroll-padding-top: calc(var(--phone-nav-h, 112px) + 8px); }
+      .timeline-card { scroll-margin-top: calc(var(--phone-nav-h, 112px) + 8px); }
       .month-ticks { display: none; }
       .month-pane .today-pin { display: none; }
       .month-pane .node.is-today .orb {
@@ -2946,7 +2960,7 @@
     }
 
     function groupCaptionHtml(g) {
-      const showDay = !isTickDay(g.date);
+      const showDay = isPhoneTimeline() || !isTickDay(g.date);
       const dayText = showDay
         ? "<time datetime=\"" + esc(g.date) + "\">" + esc(formatDayShort(g.date)) + "</time>"
         : "";
@@ -3305,6 +3319,17 @@
       renderAll(true);
     }
 
+    function layoutPhoneChrome() {
+      const bar = document.querySelector(".topbar");
+      if (window.matchMedia && window.matchMedia("(max-width: 640px)").matches) {
+        const h = bar ? Math.ceil(bar.getBoundingClientRect().height) : 112;
+        document.documentElement.style.setProperty("--phone-nav-h", h + "px");
+      } else {
+        document.documentElement.style.removeProperty("--phone-nav-h");
+      }
+      layoutPhoneSetup();
+    }
+
     function layoutPhoneSetup() {
       const setup = document.getElementById("setup");
       if (!setup || setup.hidden) return;
@@ -3462,7 +3487,7 @@
     }
     function onWindowResize() {
       window.clearTimeout(layoutTimer);
-      layoutPhoneSetup();
+      layoutPhoneChrome();
       layoutTimer = window.setTimeout(relayoutTimeline, 120);
     }
     window.addEventListener("resize", onWindowResize);
@@ -3547,6 +3572,7 @@
       });
 
       function startApp(saved) {
+        layoutPhoneChrome();
         if (saved && saved.age && saved.region) {
           setPickedRegion(saved.region);
           document.getElementById("ageInput").value = saved.age;
