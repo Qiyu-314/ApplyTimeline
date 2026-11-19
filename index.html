@@ -1119,6 +1119,20 @@
 
     /* 手机：时间线改竖排，每个节点一行，文字不再叠在一起 */
     @media (max-width: 640px) {
+      /* 设置层盖住导航并允许滚动，标题和按钮都能看到 */
+      .setup {
+        z-index: 110;
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding: 16px 12px 24px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .setup-card {
+        width: 100%;
+        margin: 0 0 16px;
+      }
+      .setup-card h2 { font-size: 22px; }
       .track-wrap { position: relative; gap: 8px; align-items: center; }
       .month-caption-list { display: none; }
       .month-nav { margin-top: 0; }
@@ -3292,6 +3306,7 @@
     function showSetup(prefill) {
       const setup = document.getElementById("setup");
       setup.hidden = false;
+      setup.scrollTop = 0;
       document.getElementById("setupError").textContent = "";
       document.getElementById("setupCancel").hidden = !(profile || loadProfile());
       if (prefill) {

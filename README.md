@@ -8,6 +8,11 @@ ApplyTimeline is a web app that helps international high school students plan un
 
 ## 当前版本
 
+**v1.3.2 — 手机能看全「更改年龄 / 地区」**
+
+- 手机打开设置页时，标题、说明、地区按钮和「查看我的时间线」都能看见，卡片可上下滑
+- 电脑和 iPad 的设置页布局未改
+
 **v1.3.1 — 时间轴上也能上下滑动页面**
 
 - 鼠标或手指在时间轴卡片里时，页面可以正常上下滚动
