@@ -351,7 +351,9 @@
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
       cursor: grab;
-      touch-action: pan-x;
+      touch-action: pan-x pan-y;
+      overscroll-behavior-x: contain;
+      overscroll-behavior-y: auto;
     }
     .track-scroller:active { cursor: grabbing; }
     .month-pane {
@@ -3409,9 +3411,10 @@
       scrollTimer = window.setTimeout(onTrackScroll, 80);
     });
     document.getElementById("trackScroller").addEventListener("wheel", function (event) {
-      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
-      event.preventDefault();
-      this.scrollLeft += event.deltaY;
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+        this.scrollLeft += event.deltaX;
+        event.preventDefault();
+      }
     }, { passive: false });
 
     let layoutTimer = 0;

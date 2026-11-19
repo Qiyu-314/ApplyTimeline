@@ -39,6 +39,12 @@ check("timeline layout follows viewport", function () {
   assert.ok(html.indexOf("visualViewport") !== -1);
 });
 
+check("page can scroll while pointer is on the timeline", function () {
+  assert.ok(html.indexOf("touch-action: pan-x pan-y") !== -1);
+  assert.ok(html.indexOf("this.scrollLeft += event.deltaY") === -1);
+  assert.ok(html.indexOf("Math.abs(event.deltaX) > Math.abs(event.deltaY)") !== -1);
+});
+
 check("desktop shows a full caption list so text is not clipped", function () {
   assert.ok(html.indexOf("function captionListHtml") !== -1);
   assert.ok(html.indexOf("month-caption-list") !== -1);
