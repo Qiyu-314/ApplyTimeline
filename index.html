@@ -1119,12 +1119,12 @@
 
     /* 手机：时间线改竖排，每个节点一行，文字不再叠在一起 */
     @media (max-width: 640px) {
-      /* 设置层盖住导航并允许滚动，标题和按钮都能看到 */
+      /* 设置卡片从导航栏下方开始，避免标题被两行导航挡住 */
       .setup {
-        z-index: 110;
+        z-index: 90;
         align-items: flex-start;
         justify-content: flex-start;
-        padding: 16px 12px 24px;
+        padding: 128px 12px 24px;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
       }
@@ -1132,7 +1132,9 @@
         width: 100%;
         margin: 0 0 16px;
       }
-      .setup-card h2 { font-size: 22px; }
+      .setup-card .eyebrow { display: none; }
+      .setup-card h2 { font-size: 22px; margin-top: 0; }
+      .setup-lead { margin-bottom: 12px; font-size: 14px; }
       .track-wrap { position: relative; gap: 8px; align-items: center; }
       .month-caption-list { display: none; }
       .month-nav { margin-top: 0; }
@@ -3303,9 +3305,28 @@
       renderAll(true);
     }
 
+    function layoutPhoneSetup() {
+      const setup = document.getElementById("setup");
+      if (!setup || setup.hidden) return;
+      if (!window.matchMedia || !window.matchMedia("(max-width: 640px)").matches) {
+        setup.style.paddingTop = "";
+        return;
+      }
+      const bar = document.querySelector(".topbar");
+      const h = bar ? Math.ceil(bar.getBoundingClientRect().height) : 120;
+      setup.style.paddingTop = (h + 10) + "px";
+    }
+
+    function hideSetup() {
+      const setup = document.getElementById("setup");
+      setup.hidden = true;
+      setup.style.paddingTop = "";
+    }
+
     function showSetup(prefill) {
       const setup = document.getElementById("setup");
       setup.hidden = false;
+      layoutPhoneSetup();
       setup.scrollTop = 0;
       document.getElementById("setupError").textContent = "";
       document.getElementById("setupCancel").hidden = !(profile || loadProfile());
@@ -3344,7 +3365,7 @@
       err.textContent = "";
       const next = { age: age, region: pickedRegion };
       saveProfile(next);
-      document.getElementById("setup").hidden = true;
+      hideSetup();
       applyProfile(next);
     });
 
@@ -3386,7 +3407,7 @@
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
     document.getElementById("setupCancel").addEventListener("click", function () {
-      document.getElementById("setup").hidden = true;
+      hideSetup();
     });
 
     document.getElementById("trackScroller").addEventListener("click", function (event) {
@@ -3441,6 +3462,7 @@
     }
     function onWindowResize() {
       window.clearTimeout(layoutTimer);
+      layoutPhoneSetup();
       layoutTimer = window.setTimeout(relayoutTimeline, 120);
     }
     window.addEventListener("resize", onWindowResize);

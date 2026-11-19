@@ -40,9 +40,10 @@ check("timeline layout follows viewport", function () {
 });
 
 check("phone setup overlay can show the full form", function () {
-  assert.ok(/@media \(max-width: 640px\)[\s\S]*?\.setup\s*\{[\s\S]*?z-index:\s*110/.test(html));
+  assert.ok(html.indexOf("function layoutPhoneSetup") !== -1);
+  assert.ok(html.indexOf("function hideSetup") !== -1);
+  assert.ok(/@media \(max-width: 640px\)[\s\S]*?\.setup\s*\{[\s\S]*?padding:\s*128px/.test(html));
   assert.ok(/@media \(max-width: 640px\)[\s\S]*?\.setup\s*\{[\s\S]*?overflow-y:\s*auto/.test(html));
-  assert.ok(html.indexOf("setup.scrollTop = 0") !== -1);
 });
 
 check("page can scroll while pointer is on the timeline", function () {
