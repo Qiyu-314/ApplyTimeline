@@ -8,6 +8,11 @@ ApplyTimeline is a web app that helps international high school students plan un
 
 ## 当前版本
 
+**v1.3.5 — 手机时间线文字不再被日期挡住**
+
+- 手机日期不再吸在导航下面盖住任务名，每个节点先写日期再写内容
+- 电脑和 iPad 仍用轴下列表，布局未改
+
 **v1.3.4 — 手机时间线每个节点都显示日期**
 
 - 手机竖排不再隐藏 1 日、月中、月末；每个节点都写出日期
