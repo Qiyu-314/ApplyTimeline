@@ -14,6 +14,9 @@
       --done: #12a060;
       --doing: #ff7a1a;
       --todo: #ffc089;
+      --done-soft: #e7f6ee;
+      --doing-soft: #fff1e4;
+      --todo-soft: #fff7ef;
       --today: #e11d70;
       --accent: #2563eb;
       --hku: #163d2e;
@@ -772,16 +775,38 @@
       padding: 10px 12px;
       border: 1px solid #f0e4d6;
       border-radius: 14px;
-      background: #fffaf4;
+      background: var(--todo-soft);
       color: inherit;
       font: inherit;
       text-align: left;
       cursor: pointer;
     }
-    .caption-list-item:hover,
-    .caption-list-item.is-open {
-      border-color: #c9d8f0;
-      background: #f4f8ff;
+    .caption-list-item.done {
+      background: var(--done-soft);
+      border-color: #b7e4cc;
+    }
+    .caption-list-item.doing {
+      background: var(--doing-soft);
+      border-color: #ffd2a8;
+    }
+    .caption-list-item.todo {
+      background: var(--todo-soft);
+      border-color: #ffe0c4;
+    }
+    .caption-list-item.done:hover,
+    .caption-list-item.done.is-open {
+      background: #d8f3e6;
+      border-color: #7dcea0;
+    }
+    .caption-list-item.doing:hover,
+    .caption-list-item.doing.is-open {
+      background: #ffe8d4;
+      border-color: #ffb347;
+    }
+    .caption-list-item.todo:hover,
+    .caption-list-item.todo.is-open {
+      background: #ffeedd;
+      border-color: #ffc089;
     }
     .caption-list-item time {
       flex: 0 0 52px;
@@ -2992,7 +3017,7 @@
         }).join("");
         const isOpen = g.id === openId ? " is-open" : "";
         return (
-          "<li><button type=\"button\" class=\"caption-list-item" + isOpen + "\" data-id=\"" + esc(g.id) + "\" aria-expanded=\"" + (g.id === openId) + "\">" +
+          "<li><button type=\"button\" class=\"caption-list-item " + esc(g.status) + isOpen + "\" data-id=\"" + esc(g.id) + "\" aria-expanded=\"" + (g.id === openId) + "\">" +
             "<time datetime=\"" + esc(g.date) + "\">" + esc(formatDayShort(g.date)) + "</time>" +
             "<span class=\"caption-list-body\">" + lines + "</span>" +
           "</button></li>"

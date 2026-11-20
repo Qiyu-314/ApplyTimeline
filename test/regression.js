@@ -59,6 +59,15 @@ check("page can scroll while pointer is on the timeline", function () {
   assert.ok(html.indexOf("Math.abs(event.deltaX) > Math.abs(event.deltaY)") !== -1);
 });
 
+check("caption list boxes follow orb status colors", function () {
+  assert.ok(html.indexOf("--done-soft") !== -1);
+  assert.ok(html.indexOf("--doing-soft") !== -1);
+  assert.ok(html.indexOf("--todo-soft") !== -1);
+  assert.ok(html.indexOf("caption-list-item.done") !== -1);
+  assert.ok(html.indexOf("caption-list-item.doing") !== -1);
+  assert.ok(html.indexOf('class="caption-list-item "') !== -1 || html.indexOf("caption-list-item \" + esc(g.status)") !== -1);
+});
+
 check("desktop shows a full caption list so text is not clipped", function () {
   assert.ok(html.indexOf("function captionListHtml") !== -1);
   assert.ok(html.indexOf("month-caption-list") !== -1);
