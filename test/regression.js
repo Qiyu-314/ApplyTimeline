@@ -117,6 +117,18 @@ check("language packs have the same keys", function () {
   });
 });
 
+check("converted Beijing times include a clock", function () {
+  const re = /summary: "([^"]*换成北京时间[^"]*)"/g;
+  let m;
+  const misses = [];
+  while ((m = re.exec(html))) {
+    const s = m[1];
+    const hasClock = /\d{1,2}:\d{2}/.test(s) || /凌晨\s*\d+\s*点/.test(s);
+    if (!hasClock) misses.push(s.slice(0, 60));
+  }
+  assert.ok(misses.length === 0, "missing clock: " + misses.join(" | "));
+});
+
 check("every template id has English copy", function () {
   const ids = [];
   const re = /id: "((?:us|uk|hk)-[^"]+)"/g;
