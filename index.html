@@ -942,6 +942,14 @@
       margin: 0 0 8px;
       font-size: 15px;
     }
+    .setup-hint {
+      display: block;
+      margin: -2px 0 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.5;
+    }
     .setup input[type="number"] {
       width: 100%;
       font: inherit;
@@ -1279,7 +1287,7 @@
       <button type="button" id="navHow" data-i18n="nav_how">How to use</button>
       <a href="#timeline" data-i18n="nav_timeline">Timeline</a>
       <a href="#sources" data-i18n="nav_sources">Text timeline</a>
-      <button type="button" id="navChangeProfile" data-i18n="nav_profile">Change age / region</button>
+      <button type="button" id="navChangeProfile" data-i18n="nav_profile">Change grade / region</button>
       <button type="button" id="navLang" aria-label="Switch language">中文</button>
     </div>
   </nav>
@@ -1301,10 +1309,11 @@
   <div class="setup" id="setup" hidden>
     <div class="setup-card">
       <span class="eyebrow" style="background:#eafaf3;color:#143528;border-color:#cde8d9;" data-i18n="setup_eyebrow">Admissions radar · application timeline</span>
-      <h2 data-i18n="setup_title">Tell me about you first</h2>
-      <p class="setup-lead" data-i18n="setup_lead">Enter your age and target region. The timeline will map your admissions cycle, and US/UK deadlines are converted to Beijing time before they appear on the axis.</p>
-      <label class="field-label" for="ageInput" data-i18n="setup_age">Your age</label>
-      <input id="ageInput" type="number" inputmode="numeric" min="12" max="22" step="1" placeholder="e.g. 16" data-i18n-placeholder="setup_age_ph" />
+      <h2 data-i18n="setup_title">Tell me about the applicant first</h2>
+      <p class="setup-lead" data-i18n="setup_lead">Enter the applicant’s current grade and target region. Counselors and parents should fill in the student’s grade, not their own. The timeline will map the admissions cycle, and US/UK deadlines are converted to Beijing time before they appear on the axis.</p>
+      <label class="field-label" for="gradeInput" data-i18n="setup_grade">Applicant’s current grade</label>
+      <p class="setup-hint" data-i18n="setup_grade_hint">Use 10 = Grade 10 (高一), 11 = Grade 11 (高二), 12 = Grade 12 (高三). Counselors and parents should enter the student’s grade.</p>
+      <input id="gradeInput" type="number" inputmode="numeric" min="7" max="12" step="1" placeholder="e.g. 11" data-i18n-placeholder="setup_grade_ph" />
       <span class="field-label" data-i18n="setup_region">Regions you want to apply to</span>
       <div class="region-picks" id="regionPicks">
         <button type="button" data-region="us" data-i18n="region_us">United States</button>
@@ -1321,7 +1330,7 @@
   <div class="page">
     <header class="hero">
       <h1 class="visually-hidden">ApplyTimeline</h1>
-      <p class="visually-hidden" id="subtitle">Choose your age and region, then view a timeline built for you. Status is compared with today.</p>
+      <p class="visually-hidden" id="subtitle">Choose the applicant’s grade and region, then view a timeline built for them. Status is compared with today.</p>
       <div class="today-banner" id="todayBanner"></div>
     </header>
 
@@ -1356,16 +1365,17 @@
         nav_how: "How to use",
         nav_timeline: "Timeline",
         nav_sources: "Text timeline",
-        nav_profile: "Change age / region",
+        nav_profile: "Change grade / region",
         lang_btn: "中文",
         help_title: "How to use ApplyTimeline",
         help_ack: "Got it",
         back_top: "Back to top",
         setup_eyebrow: "Admissions radar · application timeline",
-        setup_title: "Tell me about you first",
-        setup_lead: "Enter your age and target region. The timeline will map your admissions cycle, and US/UK deadlines are converted to Beijing time before they appear on the axis.",
-        setup_age: "Your age",
-        setup_age_ph: "e.g. 16",
+        setup_title: "Tell me about the applicant first",
+        setup_lead: "Enter the applicant’s current grade and target region. Counselors and parents should fill in the student’s grade, not their own. The timeline will map the admissions cycle, and US/UK deadlines are converted to Beijing time before they appear on the axis.",
+        setup_grade: "Applicant’s current grade",
+        setup_grade_ph: "e.g. 11",
+        setup_grade_hint: "Use 10 = Grade 10 (高一), 11 = Grade 11 (高二), 12 = Grade 12 (高三). Counselors and parents should enter the student’s grade.",
         setup_region: "Regions you want to apply to",
         region_us: "United States",
         region_hk: "Hong Kong",
@@ -1373,9 +1383,9 @@
         region_all: "US + Hong Kong + UK",
         setup_go: "See my timeline",
         setup_back: "Back to timeline",
-        setup_err_age: "Enter a whole number from 12 to 22.",
+        setup_err_grade: "Enter the applicant’s grade as a whole number from 7 to 12.",
         setup_err_region: "Please choose a region first.",
-        subtitle_base: "Choose your age and region, then view a timeline built for you. Status is compared with today.",
+        subtitle_base: "Choose the applicant’s grade and region, then view a timeline built for them. Status is compared with today.",
         timeline_heading: "Application timeline",
         month_label: "Month",
         jump_today: "Jump to today",
@@ -1422,16 +1432,17 @@
         nav_how: "怎么用",
         nav_timeline: "时间轴",
         nav_sources: "文字时间线",
-        nav_profile: "更改年龄 / 地区",
+        nav_profile: "更改年级 / 地区",
         lang_btn: "EN",
         help_title: "怎么用 ApplyTimeline",
         help_ack: "已知晓",
         back_top: "回到顶部",
         setup_eyebrow: "升学雷达 · 申请时间线规划器",
-        setup_title: "先告诉我你的情况",
-        setup_lead: "填写周岁和想申请的地区。时间线会按你的年龄换算申请季，英美截止时刻会先换成北京时间再标到轴上。",
-        setup_age: "你的年龄（周岁）",
-        setup_age_ph: "例如 16",
+        setup_title: "先告诉我申请人的情况",
+        setup_lead: "填写准备申请人现在的年级和想申请的地区。升学指导老师或家长请填学生的年级，不要填自己的。时间线会按年级换算申请季，英美截止时刻会先换成北京时间再标到轴上。",
+        setup_grade: "准备申请人现在的年级",
+        setup_grade_ph: "例如 11",
+        setup_grade_hint: "10=十年级（高一），11=十一年级（高二），12=十二年级（高三）。升学老师或家长请填学生的年级。",
         setup_region: "想申请的地区",
         region_us: "美国",
         region_hk: "香港",
@@ -1439,9 +1450,9 @@
         region_all: "美国 + 香港 + 英国",
         setup_go: "查看我的时间线",
         setup_back: "返回时间线",
-        setup_err_age: "请填写 12 到 22 之间的周岁整数。",
+        setup_err_grade: "请填写准备申请人的年级，7 到 12 的整数。",
         setup_err_region: "请先选择想申请的地区。",
-        subtitle_base: "先选择年龄和申请地区，再查看专属时间线。状态会拿「今天」和每个日期自动比较。",
+        subtitle_base: "先选择准备申请人的年级和申请地区，再查看专属时间线。状态会拿「今天」和每个日期自动比较。",
         timeline_heading: "申请季时间轴",
         month_label: "查看月份",
         jump_today: "回到今天",
@@ -2261,8 +2272,21 @@
       if (!text || !delta) return text;
       return String(text).replace(/20\d{2}/g, function (y) { return String(Number(y) + delta); });
     }
-    function entryYearFromAge(age) {
-      return 2027 + Math.max(0, 17 - Number(age));
+    function gradeFromProfile(p) {
+      if (!p) return 0;
+      const g = Number(p.grade);
+      if (Number.isInteger(g) && g >= 7 && g <= 12) return g;
+      const age = Number(p.age);
+      if (Number.isInteger(age) && age >= 12 && age <= 22) {
+        return Math.min(12, Math.max(7, age - 5));
+      }
+      return 0;
+    }
+    function hasSavedProfile(p) {
+      return !!(p && gradeFromProfile(p) && p.region);
+    }
+    function entryYearFromGrade(grade) {
+      return 2027 + Math.max(0, 12 - Number(grade));
     }
     function storageKey() {
       return "applytimeline-todos-v2-" + entryYear;
@@ -3313,7 +3337,7 @@
     function applyProfile(p) {
       profile = p;
       region = p.region;
-      entryYear = entryYearFromAge(p.age);
+      entryYear = entryYearFromGrade(gradeFromProfile(p));
       if (useBackend) {
         const yearKey = String(entryYear);
         const existing = memoryTodosByYear[yearKey];
@@ -3373,7 +3397,8 @@
       document.getElementById("setupError").textContent = "";
       document.getElementById("setupCancel").hidden = !(profile || loadProfile());
       if (prefill) {
-        document.getElementById("ageInput").value = prefill.age;
+        const grade = gradeFromProfile(prefill);
+        document.getElementById("gradeInput").value = grade || "";
         setPickedRegion(prefill.region);
       }
     }
@@ -3393,11 +3418,11 @@
     });
 
     document.getElementById("setupGo").addEventListener("click", function () {
-      const raw = document.getElementById("ageInput").value.trim();
-      const age = Number(raw);
+      const raw = document.getElementById("gradeInput").value.trim();
+      const grade = Number(raw);
       const err = document.getElementById("setupError");
-      if (!raw || !/^\d+$/.test(raw) || age < 12 || age > 22) {
-        err.textContent = t("setup_err_age");
+      if (!raw || !/^\d+$/.test(raw) || grade < 7 || grade > 12) {
+        err.textContent = t("setup_err_grade");
         return;
       }
       if (!pickedRegion) {
@@ -3405,7 +3430,7 @@
         return;
       }
       err.textContent = "";
-      const next = { age: age, region: pickedRegion };
+      const next = { grade: grade, region: pickedRegion };
       saveProfile(next);
       hideSetup();
       applyProfile(next);
@@ -3580,7 +3605,9 @@
         memoryTodosByYear = state.todos || {};
         if (!memoryProfile) {
           try { memoryProfile = JSON.parse(localStorage.getItem(PROFILE_KEY)); } catch (e) {}
-          if (memoryProfile && memoryProfile.age && memoryProfile.region) saveProfile(memoryProfile);
+          if (hasSavedProfile(memoryProfile)) {
+            saveProfile({ grade: gradeFromProfile(memoryProfile), region: memoryProfile.region });
+          }
         }
         startApp(memoryProfile);
       }).catch(function () {
@@ -3590,10 +3617,11 @@
 
       function startApp(saved) {
         layoutPhoneChrome();
-        if (saved && saved.age && saved.region) {
-          setPickedRegion(saved.region);
-          document.getElementById("ageInput").value = saved.age;
-          applyProfile(saved);
+        if (hasSavedProfile(saved)) {
+          const next = { grade: gradeFromProfile(saved), region: saved.region };
+          setPickedRegion(next.region);
+          document.getElementById("gradeInput").value = String(next.grade);
+          applyProfile(next);
         }
         helpLeadsToSetup = true;
         openHelpModal();

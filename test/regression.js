@@ -140,6 +140,20 @@ check("every template id has English copy", function () {
   });
 });
 
+check("setup asks for applicant grade not visitor age", function () {
+  assert.ok(html.indexOf('id="gradeInput"') !== -1);
+  assert.ok(html.indexOf("function entryYearFromGrade") !== -1);
+  assert.ok(html.indexOf("function gradeFromProfile") !== -1);
+  assert.ok(html.indexOf("function hasSavedProfile") !== -1);
+  assert.ok(html.indexOf("helpLeadsToSetup") !== -1);
+  assert.ok(html.indexOf("准备申请人现在的年级") !== -1);
+  assert.ok(html.indexOf("升学指导老师或家长") !== -1);
+  assert.ok(html.indexOf("Counselors and parents") !== -1);
+  assert.ok(html.indexOf("setup_grade:") !== -1);
+  assert.ok(html.indexOf("setup_age:") === -1);
+  assert.ok(html.indexOf('id="ageInput"') === -1);
+});
+
 check("toggle and first-visit help flags remain", function () {
   assert.ok(html.indexOf("helpLeadsToSetup") !== -1);
   assert.ok(html.indexOf('setLang(lang === "en" ? "zh" : "en")') !== -1);

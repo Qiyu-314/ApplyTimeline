@@ -121,12 +121,22 @@ function readBody(req) {
   });
 }
 
-function cleanProfile(input) {
+function gradeFromInput(input) {
+  const g = Number(input && input.grade);
+  if (Number.isInteger(g) && g >= 7 && g <= 12) return g;
   const age = Number(input && input.age);
+  if (Number.isInteger(age) && age >= 12 && age <= 22) {
+    return Math.min(12, Math.max(7, age - 5));
+  }
+  return 0;
+}
+
+function cleanProfile(input) {
+  const grade = gradeFromInput(input);
   const region = input && input.region;
-  if (!Number.isInteger(age) || age < 12 || age > 22) return null;
+  if (!grade) return null;
   if (!ALLOWED_REGIONS[region]) return null;
-  return { age: age, region: region };
+  return { grade: grade, region: region };
 }
 
 function serveIndex(res) {

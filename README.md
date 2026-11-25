@@ -1,12 +1,19 @@
 # ApplyTimeline
 
-ApplyTimeline is a web app that helps international high school students plan undergraduate applications to the United States, Hong Kong, and the United Kingdom. After entering their age and target region, students see a personalized timeline for the correct admissions cycle, with milestones, date ranges, and checklists they can tick off as they go. Cross-month stages appear as start and end points that share the same task progress. Deadlines originally given in US or UK local time are converted to Beijing time so Chinese students do not miss cutoffs. Users can view one region or merge all three onto a single axis, with each node labeled by country.
+ApplyTimeline is a web app that helps international high school students plan undergraduate applications to the United States, Hong Kong, and the United Kingdom. After entering the applicant’s current grade and target region, students (or a counselor / parent filling in for them) see a personalized timeline for the correct admissions cycle, with milestones, date ranges, and checklists they can tick off as they go. Cross-month stages appear as start and end points that share the same task progress. Deadlines originally given in US or UK local time are converted to Beijing time so Chinese students do not miss cutoffs. Users can view one region or merge all three onto a single axis, with each node labeled by country.
 
 线上地址：https://applytimeline.help
 
 上线后由 Cloudflare Worker 提供页面，并每 6 小时刷新 HKU / UCAS 官方日期。
 
 ## 当前版本
+
+**v1.3.8 — 用申请人年级代替年龄**
+
+- 第一次进来仍是：怎么用 → 已知晓 → 填资料；之后点「怎么用」不会再弹出填资料
+- 资料改为填准备申请人现在的年级（7–12），并写明升学老师或家长请填学生的年级
+- 十二年级按本轮申请季排时间线；更低年级会往后推入学年
+- 时间轴、待办、中英文切换、官方日期刷新未改
 
 **v1.3.7 — 换成北京时间后写出具体截止时刻**
 
@@ -85,7 +92,7 @@ node server.js
 
 浏览器打开 http://localhost:3000
 
-本机后端会保存年龄、地区和待办（Cookie + `data/store.json`）。线上没有这份文件存储时，勾选会留在浏览器里；官方日期仍走 `/api/dates`。
+本机后端会保存申请人年级、地区和待办（Cookie + `data/store.json`）。线上没有这份文件存储时，勾选会留在浏览器里；官方日期仍走 `/api/dates`。
 
 ## 回归测试
 
